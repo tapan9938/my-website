@@ -7,10 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- PDF.js library for PDF parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <!-- html2pdf.js for Client-side PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Firebase SDKs for Multi-Device Sync -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
     </script>
@@ -102,19 +108,19 @@
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen font-sans flex flex-col justify-between" onload="initApp()">
 
     <!-- LOGIN / SIGNUP PORTAL SCREEN -->
-    <div id="authScreen" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700">
-            <div class="text-center mb-6">
+    <div id="authScreen" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto max-h-screen">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-5 sm:p-8 border border-slate-200 dark:border-slate-700 my-auto">
+            <div class="text-center mb-5">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-md mx-auto mb-3 animate-bounce">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
-                <h2 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h2 class="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     DEFENCE ACADEMY, BERHAMPUR
                 </h2>
-                <p class="text-xs text-slate-500 font-medium mt-1">INSTITUTE LEARNING MANAGEMENT SYSTEM</p>
+                <p class="text-[11px] sm:text-xs text-slate-500 font-medium mt-1">INSTITUTE LEARNING MANAGEMENT SYSTEM</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-700 p-1 rounded-xl mb-6 text-xs font-bold">
+            <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-700 p-1 rounded-xl mb-5 text-xs font-bold">
                 <button id="authTabStudent" onclick="switchAuthMode('student')" class="py-2.5 rounded-lg bg-white dark:bg-slate-800 shadow text-blue-600 dark:text-blue-400">
                     <i class="fa-solid fa-user-graduate mr-1"></i> Student Portal
                 </button>
@@ -125,13 +131,13 @@
 
             <div id="studentAuthContainer">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 id="studentAuthTitle" class="text-sm font-bold text-slate-800 dark:text-slate-100">Student Sign In</h3>
+                    <h3 id="studentAuthTitle" class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">Student Sign In</h3>
                     <button onclick="toggleStudentForm()" id="toggleFormBtn" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                         Need an account? Sign Up
                     </button>
                 </div>
 
-                <form id="studentLoginForm" onsubmit="handleStudentLogin(event)" class="space-y-4 text-xs">
+                <form id="studentLoginForm" onsubmit="handleStudentLogin(event)" class="space-y-3.5 text-xs">
                     <div>
                         <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Email Address</label>
                         <input type="email" id="loginStudentEmail" required placeholder="student@example.com" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-800 dark:text-white">
@@ -145,7 +151,7 @@
                     </button>
                 </form>
 
-                <form id="studentSignupForm" onsubmit="handleStudentSignup(event)" class="hidden space-y-4 text-xs">
+                <form id="studentSignupForm" onsubmit="handleStudentSignup(event)" class="hidden space-y-3.5 text-xs">
                     <div>
                         <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Full Name</label>
                         <input type="text" id="signupStudentName" required placeholder="Rahul Sharma" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-800 dark:text-white">
@@ -169,8 +175,8 @@
             </div>
 
             <div id="adminAuthContainer" class="hidden">
-                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4">Administrator Authentication</h3>
-                <form onsubmit="handleAdminLogin(event)" class="space-y-4 text-xs">
+                <h3 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mb-4">Administrator Authentication</h3>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-3.5 text-xs">
                     <div>
                         <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Admin Email</label>
                         <input type="email" id="adminEmail" required placeholder="admin@example.com" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-800 dark:text-white">
@@ -188,13 +194,13 @@
     </div>
 
     <!-- MOTIVATIONAL TOP BAR -->
-    <div class="bg-gradient-to-r from-indigo-900 via-blue-900 to-slate-900 text-amber-300 text-[11px] font-semibold py-1.5 px-4 text-center border-b border-indigo-800/50 flex justify-between items-center overflow-hidden">
-        <div class="max-w-7xl mx-auto w-full flex justify-between items-center">
-            <span class="flex items-center gap-2">
-                <i class="fa-solid fa-fire text-amber-400 animate-pulse"></i> 
-                <span id="motivationalTicker">"Success isn't given. It's earned. Stay focused and keep testing your limits!"</span>
+    <div class="bg-gradient-to-r from-indigo-900 via-blue-900 to-slate-900 text-amber-300 text-[10px] sm:text-[11px] font-semibold py-1.5 px-3 text-center border-b border-indigo-800/50 flex justify-between items-center overflow-hidden">
+        <div class="max-w-7xl mx-auto w-full flex justify-between items-center gap-2">
+            <span class="flex items-center gap-1.5 truncate">
+                <i class="fa-solid fa-fire text-amber-400 animate-pulse shrink-0"></i> 
+                <span id="motivationalTicker" class="truncate">"Success isn't given. It's earned. Stay focused and keep testing your limits!"</span>
             </span>
-            <span class="hidden sm:inline-block text-xs text-indigo-200">
+            <span class="hidden sm:inline-block text-xs text-indigo-200 shrink-0">
                 <i class="fa-solid fa-trophy text-yellow-400 mr-1"></i> Target High Rank Today
             </span>
         </div>
@@ -202,34 +208,34 @@
 
     <!-- MAIN APP HEADER -->
     <header class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40 shadow-sm transition-all">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center flex-wrap sm:flex-nowrap gap-2">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md animate-float">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 sm:h-16 items-center flex-nowrap gap-2">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-base sm:text-xl shadow-md shrink-0">
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
-                    <div>
-                        <h1 class="text-base sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    <div class="truncate">
+                        <h1 class="text-xs sm:text-lg font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
                             Free Mock For All <span class="hidden md:inline text-slate-700 dark:text-slate-200 text-sm font-semibold">| DEFENCE ACADEMY, BERHAMPUR</span>
                         </h1>
-                        <p class="text-[10px] text-slate-500 font-medium tracking-wide">INSTITUTE LEARNING MANAGEMENT SYSTEM</p>
+                        <p class="text-[9px] sm:text-[10px] text-slate-500 font-medium tracking-wide truncate">DEFENCE ACADEMY, BERHAMPUR</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-700/60 px-3 py-1.5 rounded-full text-xs font-medium">
-                        <span id="userStatusBadge" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="currentRoleText">Not Logged In</span>
-                        <span id="blockedTag" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">BLOCKED</span>
+                <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                    <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700/60 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium max-w-[120px] sm:max-w-none truncate">
+                        <span id="userStatusBadge" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                        <span id="currentRoleText" class="truncate">Not Logged In</span>
+                        <span id="blockedTag" class="hidden bg-red-500 text-white text-[9px] px-1 py-0.2 rounded font-bold uppercase shrink-0">BLOCKED</span>
                     </div>
 
-                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Toggle Theme">
-                        <i class="fa-solid fa-moon dark:hidden"></i>
-                        <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                    <button onclick="toggleDarkMode()" class="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Toggle Theme">
+                        <i class="fa-solid fa-moon text-xs sm:text-sm dark:hidden"></i>
+                        <i class="fa-solid fa-sun text-xs sm:text-sm hidden dark:inline text-amber-400"></i>
                     </button>
 
-                    <button onclick="logout()" class="bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 font-bold text-xs px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    <button onclick="logout()" class="bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 font-bold text-[11px] sm:text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border border-red-200 dark:border-red-800 transition flex items-center gap-1">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
                     </button>
                 </div>
             </div>
@@ -237,191 +243,190 @@
     </header>
 
     <!-- Main Content Container -->
-    <main id="mainContainer" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <main id="mainContainer" class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
 
-        <div id="blockedBanner" class="hidden mb-6 bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
+        <div id="blockedBanner" class="hidden mb-4 sm:mb-6 bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 p-3 sm:p-4 rounded-r-lg shadow-sm">
             <div class="flex items-start gap-3">
-                <i class="fa-solid fa-triangle-exclamation text-red-500 text-2xl mt-0.5"></i>
+                <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl sm:text-2xl mt-0.5"></i>
                 <div>
-                    <h3 class="text-sm font-bold text-red-800 dark:text-red-200">Account Restricted by Institute Admin</h3>
-                    <p class="text-xs text-red-700 dark:text-red-300 mt-1">Your access to Mock Tests and YouTube Classes has been temporarily locked by your institute admin. Please contact support or clear your pending dues to regain access.</p>
+                    <h3 class="text-xs sm:text-sm font-bold text-red-800 dark:text-red-200">Account Restricted by Institute Admin</h3>
+                    <p class="text-[11px] sm:text-xs text-red-700 dark:text-red-300 mt-0.5">Your access to Mock Tests and YouTube Classes has been locked by your admin. Please contact support to regain access.</p>
                 </div>
             </div>
         </div>
 
         <!-- STUDENT PORTAL -->
-        <div id="studentPortal" class="space-y-8">
-            <section id="motivationalBanner" class="animated-banner-bg rounded-2xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden transition-all duration-500">
+        <div id="studentPortal" class="space-y-6 sm:space-y-8">
+            <section id="motivationalBanner" class="animated-banner-bg rounded-2xl p-5 sm:p-10 text-white shadow-xl relative overflow-hidden transition-all duration-500">
                 <div class="relative z-10 max-w-2xl">
-                    <span id="examBadgeDynamic" class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3 shadow-sm border border-white/20">
+                    <span id="examBadgeDynamic" class="inline-block bg-white/20 backdrop-blur-md px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-2 sm:mb-3 shadow-sm border border-white/20">
                         <i class="fa-solid fa-bolt text-yellow-300 mr-1 animate-pulse"></i> Target Exam Mode
                     </span>
-                    <h2 id="bannerQuoteHeading" class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                    <h2 id="bannerQuoteHeading" class="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
                         Push Yourself, Because No One Else Is Going To Do It For You.
                     </h2>
-                    <p id="bannerSubQuote" class="mt-3 text-slate-200 text-sm sm:text-base">Practice chapter-wise tests, full mocks, and previous year questions organized systematically to crack your dream exam.</p>
-                    <div class="mt-6 flex flex-wrap gap-3">
-                        <button onclick="switchStudentTab('mocks')" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-2.5 rounded-xl text-sm shadow-md transition flex items-center gap-2 transform hover:-translate-y-0.5">
+                    <p id="bannerSubQuote" class="mt-2 sm:mt-3 text-slate-200 text-xs sm:text-sm lg:text-base">Practice chapter-wise tests, full mocks, and previous year questions organized systematically to crack your dream exam.</p>
+                    <div class="mt-4 sm:mt-6 flex flex-wrap gap-2.5 sm:gap-3">
+                        <button onclick="switchStudentTab('mocks')" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm shadow-md transition flex items-center gap-2">
                             <i class="fa-solid fa-pen-to-square"></i> Attempt Mock Tests
                         </button>
-                        <button onclick="switchStudentTab('videos')" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition backdrop-blur-md flex items-center gap-2 transform hover:-translate-y-0.5">
-                            <i class="fa-solid fa-circle-play"></i> Watch YouTube Classes & PDFs
+                        <button onclick="switchStudentTab('videos')" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm transition backdrop-blur-md flex items-center gap-2">
+                            <i class="fa-solid fa-circle-play"></i> Watch Classes & PDFs
                         </button>
                     </div>
                 </div>
-                <i class="fa-solid fa-trophy absolute -right-6 -bottom-8 text-[180px] text-white/10 pointer-events-none"></i>
+                <i class="fa-solid fa-trophy absolute -right-6 -bottom-8 text-[120px] sm:text-[180px] text-white/10 pointer-events-none"></i>
             </section>
 
-            <div class="border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+            <div class="border-b border-slate-200 dark:border-slate-700 overflow-x-auto custom-scrollbar">
                 <nav class="flex gap-4 sm:gap-6 whitespace-nowrap min-w-max pb-1">
-                    <button onclick="switchStudentTab('mocks')" id="tabBtnMocks" class="pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2">
+                    <button onclick="switchStudentTab('mocks')" id="tabBtnMocks" class="pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5">
                         <i class="fa-solid fa-clipboard-list"></i> Mock Tests Portal
                     </button>
-                    <button onclick="switchStudentTab('videos')" id="tabBtnVideos" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2">
+                    <button onclick="switchStudentTab('videos')" id="tabBtnVideos" class="pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1.5">
                         <i class="fa-solid fa-video"></i> YouTube Classes
                     </button>
-                    <button onclick="switchStudentTab('history')" id="tabBtnHistory" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2">
+                    <button onclick="switchStudentTab('history')" id="tabBtnHistory" class="pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1.5">
                         <i class="fa-solid fa-chart-pie"></i> My Test Results
                     </button>
                 </nav>
             </div>
 
-            <!-- STUDENT MOCKS TAB WITH SUB-FOLDER FILTERS -->
-            <div id="studentMocksTab" class="space-y-6">
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex items-center gap-3 w-full md:w-auto">
-                        <i class="fa-solid fa-filter text-blue-600 text-lg"></i>
+            <!-- STUDENT MOCKS TAB -->
+            <div id="studentMocksTab" class="space-y-4 sm:space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3.5">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-filter text-blue-600 text-base"></i>
                         <div class="flex-grow">
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400">Select Target Exam Category</label>
-                            <select id="studentMockCategoryFilter" onchange="onStudentCategoryChange()" class="w-full md:w-64 text-xs font-bold py-1.5 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg border border-slate-300 dark:border-slate-600">
+                            <label class="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Select Target Exam Category</label>
+                            <select id="studentMockCategoryFilter" onchange="onStudentCategoryChange()" class="w-full md:w-64 text-xs font-bold py-1.5 px-2 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg border border-slate-300 dark:border-slate-600">
                                 <option value="ALL">All Exam Categories</option>
                             </select>
                         </div>
                     </div>
 
                     <!-- FOLDER WISE SUB-TABS -->
-                    <div class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
-                        <button onclick="setMockFolderFilter('ALL')" id="mockFolderAll" class="mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-folder-open"></i> All Mocks
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2">
+                        <button onclick="setMockFolderFilter('ALL')" id="mockFolderAll" class="mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-folder-open"></i> All
                         </button>
-                        <button onclick="setMockFolderFilter('chapter')" id="mockFolderChapter" class="mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-book-bookmark text-emerald-500"></i> Chapter Wise Test
+                        <button onclick="setMockFolderFilter('chapter')" id="mockFolderChapter" class="mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1">
+                            <i class="fa-solid fa-book-bookmark text-emerald-500"></i> Chapter Test
                         </button>
-                        <button onclick="setMockFolderFilter('full')" id="mockFolderFull" class="mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-layer-group text-purple-500"></i> Full Mock Test
+                        <button onclick="setMockFolderFilter('full')" id="mockFolderFull" class="mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1">
+                            <i class="fa-solid fa-layer-group text-purple-500"></i> Full Mock
                         </button>
-                        <button onclick="setMockFolderFilter('pyq')" id="mockFolderPyq" class="mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Previous Year (PYQ)
+                        <button onclick="setMockFolderFilter('pyq')" id="mockFolderPyq" class="mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1">
+                            <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> PYQ
                         </button>
                     </div>
                 </div>
 
-                <div id="studentMockGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="studentMockGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <!-- Dynamic Categorized Mock Test Cards -->
                 </div>
             </div>
 
-            <!-- STUDENT VIDEOS TAB WITH EXAM & SUBJECT FOLDER WISE CLASSES -->
-            <div id="studentVideosTab" class="hidden space-y-6">
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex items-center gap-3 w-full md:w-auto">
-                        <i class="fa-brands fa-youtube text-red-600 text-xl"></i>
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400">1. Select Target Exam</label>
-                            <select id="studentVideoCategoryFilter" onchange="onStudentVideoExamChange()" class="w-full md:w-64 text-xs font-bold py-1.5 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg border border-slate-300 dark:border-slate-600">
+            <!-- STUDENT VIDEOS TAB -->
+            <div id="studentVideosTab" class="hidden space-y-4 sm:space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3.5">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-brands fa-youtube text-red-600 text-lg"></i>
+                        <div class="flex-grow">
+                            <label class="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">1. Select Target Exam</label>
+                            <select id="studentVideoCategoryFilter" onchange="onStudentVideoExamChange()" class="w-full md:w-64 text-xs font-bold py-1.5 px-2 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white rounded-lg border border-slate-300 dark:border-slate-600">
                                 <option value="ALL">All Exam Categories</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- FOLDER WISE (SUBJECT / TOPIC) TABS FOR VIDEOS -->
-                    <div class="w-full md:w-auto flex flex-col gap-1">
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400">2. Select Subject Folder</label>
-                        <div id="videoSubjectFolderTabs" class="flex flex-wrap gap-2 justify-start md:justify-end">
+                    <div class="flex flex-col gap-1">
+                        <label class="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">2. Select Subject Folder</label>
+                        <div id="videoSubjectFolderTabs" class="flex flex-wrap gap-1.5">
                             <!-- Dynamic Subject Folders -->
                         </div>
                     </div>
                 </div>
 
-                <div id="studentVideoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="studentVideoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <!-- Dynamic Folder-wise Video & Attached PDF Cards -->
                 </div>
             </div>
 
-            <div id="studentHistoryTab" class="hidden space-y-6">
-                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <div id="studentHistoryTab" class="hidden space-y-4 sm:space-y-6">
+                <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-trophy text-yellow-500"></i> Your Exam Score Cards
                 </h3>
-                <div id="historyList" class="space-y-4">
+                <div id="historyList" class="space-y-3 sm:space-y-4">
                     <!-- Dynamic Results -->
                 </div>
             </div>
         </div>
 
         <!-- ADMIN DASHBOARD -->
-        <div id="adminPortal" class="hidden space-y-8">
-            <div class="bg-slate-800 text-white p-6 rounded-2xl shadow-lg flex flex-wrap justify-between items-center gap-4">
+        <div id="adminPortal" class="hidden space-y-6 sm:space-y-8">
+            <div class="bg-slate-800 text-white p-5 sm:p-6 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
+                    <div class="flex items-center gap-2 text-emerald-400 font-bold text-[10px] sm:text-xs uppercase tracking-wider mb-1">
                         <i class="fa-solid fa-shield-halved"></i> Administrator Dashboard
                     </div>
-                    <h2 class="text-2xl font-bold">Institute Control Center</h2>
-                    <p class="text-xs text-slate-400 mt-1">Manage mock exams, categorization, YouTube classes, PDF attachments, and parent reports.</p>
+                    <h2 class="text-xl sm:text-2xl font-bold">Institute Control Center</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Manage mock exams, YouTube classes, PDF attachments, and parent reports.</p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="openCreateTestModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow transition flex items-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Create New Mock Exam
+                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <button onclick="openCreateTestModal()" class="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-3.5 py-2.5 rounded-lg shadow transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> New Mock Exam
                     </button>
-                    <button onclick="openAddVideoModal()" class="bg-red-600 hover:bg-red-500 text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow transition flex items-center gap-2">
-                        <i class="fa-solid fa-video"></i> Add YouTube Class & PDF
+                    <button onclick="openAddVideoModal()" class="flex-1 sm:flex-initial bg-red-600 hover:bg-red-500 text-white font-semibold text-xs px-3.5 py-2.5 rounded-lg shadow transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-video"></i> Add Class & PDF
                     </button>
                 </div>
             </div>
 
-            <div class="border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+            <div class="border-b border-slate-200 dark:border-slate-700 overflow-x-auto custom-scrollbar">
                 <nav class="flex gap-4 sm:gap-6 whitespace-nowrap min-w-max pb-1">
-                    <button onclick="switchAdminTab('tests')" id="adminTabBtnTests" class="pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2">
+                    <button onclick="switchAdminTab('tests')" id="adminTabBtnTests" class="pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5">
                         <i class="fa-solid fa-list-check"></i> Manage Mock Exams
                     </button>
-                    <button onclick="switchAdminTab('students')" id="adminTabBtnStudents" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2">
+                    <button onclick="switchAdminTab('students')" id="adminTabBtnStudents" class="pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1.5">
                         <i class="fa-solid fa-users"></i> Manage Students & Access
                     </button>
-                    <button onclick="switchAdminTab('results')" id="adminTabBtnResults" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> Student Results & WhatsApp Parent Dispatch
+                    <button onclick="switchAdminTab('results')" id="adminTabBtnResults" class="pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-paper-plane"></i> Student Results & WhatsApp Dispatch
                     </button>
-                    <button onclick="switchAdminTab('videos')" id="adminTabBtnVideos" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-2">
-                        <i class="fa-brands fa-youtube"></i> Manage Video Classes & PDFs
+                    <button onclick="switchAdminTab('videos')" id="adminTabBtnVideos" class="pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-brands fa-youtube"></i> Video Classes & PDFs
                     </button>
                 </nav>
             </div>
 
-            <div id="adminTestsTab" class="space-y-6">
-                <div id="adminMockList" class="space-y-4">
-                    <!-- Dynamic Mock Test List with Sub-types -->
+            <div id="adminTestsTab" class="space-y-4 sm:space-y-6">
+                <div id="adminMockList" class="space-y-3 sm:space-y-4">
+                    <!-- Dynamic Mock Test List -->
                 </div>
             </div>
 
             <!-- MANAGE STUDENTS AND ACCESS TAB -->
             <div id="adminStudentsTab" class="hidden space-y-6">
                 <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-                    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="px-4 sm:px-6 py-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 dark:text-slate-100">Enrolled Students Directory</h3>
-                            <p class="text-xs text-slate-400">Block or remove students to restrict website and portal access.</p>
+                            <h3 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Enrolled Students Directory</h3>
+                            <p class="text-[11px] text-slate-400">Block or remove students to restrict portal access.</p>
                         </div>
                         <div class="w-full sm:w-auto">
-                            <input type="text" id="studentDirectorySearch" oninput="renderAdminStudents()" placeholder="Filter by student name or email..." class="w-full sm:w-64 px-3 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg">
+                            <input type="text" id="studentDirectorySearch" oninput="renderAdminStudents()" placeholder="Filter by name or email..." class="w-full sm:w-64 px-3 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg">
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-xs min-w-[600px]">
                             <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold uppercase">
                                 <tr>
-                                    <th class="px-6 py-3">Student Name</th>
-                                    <th class="px-6 py-3">Parent WhatsApp</th>
-                                    <th class="px-6 py-3">Email</th>
-                                    <th class="px-6 py-3">Access Status</th>
-                                    <th class="px-6 py-3 text-right">Admin Actions</th>
+                                    <th class="px-4 sm:px-6 py-3">Student Name</th>
+                                    <th class="px-4 sm:px-6 py-3">Parent WhatsApp</th>
+                                    <th class="px-4 sm:px-6 py-3">Email</th>
+                                    <th class="px-4 sm:px-6 py-3">Access Status</th>
+                                    <th class="px-4 sm:px-6 py-3 text-right">Admin Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="studentTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -435,29 +440,26 @@
             <!-- STUDENT RESULTS & WHATSAPP PARENT DISPATCH TAB -->
             <div id="adminResultsTab" class="hidden space-y-6">
                 <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-                    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="px-4 sm:px-6 py-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 dark:text-slate-100">Student Exam Records & Activity Report PDF Dispatch</h3>
-                            <p class="text-xs text-slate-400">Search student to generate complete percentage & video activity PDF report.</p>
+                            <h3 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Student Exam Records & PDF Dispatch</h3>
+                            <p class="text-[11px] text-slate-400">Search student to generate complete activity PDF report.</p>
                         </div>
-                        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                            <div class="relative flex-1 md:w-64">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
-                                <input type="text" id="adminStudentSearchInput" oninput="renderAdminResults()" placeholder="Search Student Name / Email..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg font-medium">
-                            </div>
+                        <div class="w-full md:w-auto">
+                            <input type="text" id="adminStudentSearchInput" oninput="renderAdminResults()" placeholder="Search Name / Email..." class="w-full md:w-64 px-3 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg font-medium">
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-xs min-w-[700px]">
                             <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold uppercase">
                                 <tr>
-                                    <th class="px-6 py-3">Student</th>
-                                    <th class="px-6 py-3">Exam Title</th>
-                                    <th class="px-6 py-3">Score & Percentage</th>
-                                    <th class="px-6 py-3">Rank</th>
-                                    <th class="px-6 py-3">Accuracy</th>
-                                    <th class="px-6 py-3">Date</th>
-                                    <th class="px-6 py-3 text-right">Actions / Report PDF</th>
+                                    <th class="px-4 sm:px-6 py-3">Student</th>
+                                    <th class="px-4 sm:px-6 py-3">Exam Title</th>
+                                    <th class="px-4 sm:px-6 py-3">Score & Percentage</th>
+                                    <th class="px-4 sm:px-6 py-3">Rank</th>
+                                    <th class="px-4 sm:px-6 py-3">Accuracy</th>
+                                    <th class="px-4 sm:px-6 py-3">Date</th>
+                                    <th class="px-4 sm:px-6 py-3 text-right">Actions / PDF</th>
                                 </tr>
                             </thead>
                             <tbody id="adminResultsTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -469,191 +471,172 @@
             </div>
 
             <div id="adminVideosTab" class="hidden space-y-6">
-                <div id="adminVideoList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Dynamic Videos with attached PDF actions -->
+                <div id="adminVideoList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    <!-- Dynamic Videos -->
                 </div>
             </div>
         </div>
     </main>
 
     <!-- MOTIVATIONAL FOOTER -->
-    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-8 px-4 mt-12 transition-all">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="text-center md:text-left space-y-2">
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-6 sm:py-8 px-4 mt-8 sm:mt-12 transition-all">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6 text-center md:text-left">
+            <div class="space-y-1 sm:space-y-2">
                 <div class="flex items-center justify-center md:justify-start gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                    <div class="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
-                    <span class="font-bold text-white text-base">DEFENCE ACADEMY, BERHAMPUR</span>
+                    <span class="font-bold text-white text-sm sm:text-base">DEFENCE ACADEMY, BERHAMPUR</span>
                 </div>
-                <p class="text-xs text-slate-400 max-w-sm">Empowering every student with free structured test series, chapter-wise practice, PYQs, and video lectures.</p>
+                <p class="text-[11px] sm:text-xs text-slate-400 max-w-sm">Free structured test series, chapter-wise practice, PYQs, and video lectures.</p>
             </div>
 
-            <div class="text-center space-y-1">
-                <p class="text-xs font-semibold text-amber-400 italic">"Your hard work today will build your tomorrow."</p>
-                <div class="flex justify-center gap-4 text-slate-400 text-sm pt-1">
-                    <span class="hover:text-blue-400 cursor-pointer"><i class="fa-solid fa-shield-halved mr-1"></i> Verified Tests</span>
-                    <span class="hover:text-emerald-400 cursor-pointer"><i class="fa-solid fa-chart-line mr-1"></i> Smart Analytics</span>
-                </div>
+            <div class="space-y-1">
+                <p class="text-[11px] sm:text-xs font-semibold text-amber-400 italic">"Your hard work today will build your tomorrow."</p>
             </div>
 
-            <div class="text-center md:text-right text-xs text-slate-500">
+            <div class="text-[10px] sm:text-xs text-slate-500">
                 <p>© 2026 Free Mock For All LMS Engine.</p>
-                <p class="mt-1">All Rights Reserved | DEFENCE ACADEMY, BERHAMPUR</p>
             </div>
         </div>
     </footer>
 
     <!-- DETAILED STUDENT ACTIVITY PDF REPORT TEMPLATE -->
-    <div id="pdfReportTemplate" class="hidden p-8 bg-white text-slate-900 font-sans max-w-4xl mx-auto">
+    <div id="pdfReportTemplate" class="hidden p-6 sm:p-8 bg-white text-slate-900 font-sans max-w-4xl mx-auto">
         <div class="border-b-2 border-blue-600 pb-4 mb-6 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-black text-blue-700">DEFENCE ACADEMY, BERHAMPUR</h1>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Official Comprehensive Student Activity & Performance Report</p>
+                <h1 class="text-xl sm:text-2xl font-black text-blue-700">DEFENCE ACADEMY, BERHAMPUR</h1>
+                <p class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest">Official Student Performance Report</p>
             </div>
             <div class="text-right">
-                <p class="text-xs font-semibold text-slate-400">Generated: <span id="pdfGenDate"></span></p>
-                <p class="text-xs font-bold text-slate-700">Verified LMS Report</p>
+                <p class="text-[10px] font-semibold text-slate-400">Generated: <span id="pdfGenDate"></span></p>
             </div>
         </div>
 
-        <div class="bg-slate-100 p-4 rounded-xl mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+        <div class="bg-slate-100 p-4 rounded-xl mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div>
-                <p class="text-slate-500 uppercase font-bold">Student Name</p>
-                <p id="pdfStudentName" class="text-sm font-black text-slate-800"></p>
+                <p class="text-slate-500 uppercase font-bold text-[10px]">Student Name</p>
+                <p id="pdfStudentName" class="text-xs sm:text-sm font-black text-slate-800"></p>
             </div>
             <div>
-                <p class="text-slate-500 uppercase font-bold">Email Address</p>
-                <p id="pdfStudentEmail" class="text-sm font-semibold text-slate-800"></p>
+                <p class="text-slate-500 uppercase font-bold text-[10px]">Email Address</p>
+                <p id="pdfStudentEmail" class="text-xs sm:text-sm font-semibold text-slate-800 truncate"></p>
             </div>
             <div>
-                <p class="text-slate-500 uppercase font-bold">Parent Contact</p>
-                <p id="pdfParentContact" class="text-sm font-semibold text-slate-800"></p>
+                <p class="text-slate-500 uppercase font-bold text-[10px]">Parent Contact</p>
+                <p id="pdfParentContact" class="text-xs sm:text-sm font-semibold text-slate-800"></p>
             </div>
             <div>
-                <p class="text-slate-500 uppercase font-bold">Mock Exams Attempted</p>
-                <p id="pdfTotalAttempts" class="text-sm font-black text-blue-600"></p>
+                <p class="text-slate-500 uppercase font-bold text-[10px]">Exams Attempted</p>
+                <p id="pdfTotalAttempts" class="text-xs sm:text-sm font-black text-blue-600"></p>
             </div>
         </div>
 
-        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 mb-3 border-b pb-1">1. Mock Exam Percentage & Performance Breakdown</h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 border-b pb-1">1. Mock Exam Breakdown</h3>
         <table class="w-full text-left text-xs mb-6 border-collapse">
             <thead>
-                <tr class="bg-slate-200 text-slate-700 font-bold uppercase">
+                <tr class="bg-slate-200 text-slate-700 font-bold uppercase text-[10px]">
                     <th class="p-2 border border-slate-300">#</th>
                     <th class="p-2 border border-slate-300">Exam Title</th>
                     <th class="p-2 border border-slate-300">Date</th>
                     <th class="p-2 border border-slate-300">Score</th>
                     <th class="p-2 border border-slate-300">Percentage</th>
                     <th class="p-2 border border-slate-300">Accuracy</th>
-                    <th class="p-2 border border-slate-300">Rank</th>
                 </tr>
             </thead>
-            <tbody id="pdfAttemptsTableBody">
-            </tbody>
+            <tbody id="pdfAttemptsTableBody"></tbody>
         </table>
 
-        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 mb-3 border-b pb-1">2. Video Classes Watched & Activity Details</h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 border-b pb-1">2. Classes Activity</h3>
         <table class="w-full text-left text-xs mb-6 border-collapse">
             <thead>
-                <tr class="bg-slate-200 text-slate-700 font-bold uppercase">
+                <tr class="bg-slate-200 text-slate-700 font-bold uppercase text-[10px]">
                     <th class="p-2 border border-slate-300">#</th>
-                    <th class="p-2 border border-slate-300">Video Class Title</th>
-                    <th class="p-2 border border-slate-300">Subject Folder</th>
-                    <th class="p-2 border border-slate-300">Exam Category</th>
-                    <th class="p-2 border border-slate-300">Status</th>
+                    <th class="p-2 border border-slate-300">Video Title</th>
+                    <th class="p-2 border border-slate-300">Subject</th>
+                    <th class="p-2 border border-slate-300">Category</th>
                 </tr>
             </thead>
-            <tbody id="pdfVideoActivityTableBody">
-            </tbody>
+            <tbody id="pdfVideoActivityTableBody"></tbody>
         </table>
-
-        <div class="mt-8 text-center border-t border-slate-300 pt-4 text-[10px] text-slate-400">
-            This is an automated verified student performance and activity statement generated from LMS Control Portal.
-        </div>
     </div>
 
     <!-- FULLSCREEN EXAM INTERFACE -->
     <div id="examInterface" class="hidden fixed inset-0 bg-white dark:bg-slate-900 z-50 flex flex-col h-screen overflow-hidden">
-        <header class="bg-slate-800 text-white px-4 sm:px-6 py-3 flex justify-between items-center shrink-0 shadow-md">
-            <div class="flex items-center gap-3">
-                <span class="bg-blue-600 text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">TESTBOOK ENGINE</span>
-                <h2 id="examTitleHeader" class="text-sm sm:text-base font-bold truncate max-w-xs sm:max-w-md">Mock Test Title</h2>
+        <header class="bg-slate-800 text-white px-3 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center shrink-0 shadow-md">
+            <div class="flex items-center gap-2 truncate">
+                <span class="bg-blue-600 text-[10px] sm:text-xs px-2 py-0.5 rounded font-bold uppercase shrink-0">TEST ENGINE</span>
+                <h2 id="examTitleHeader" class="text-xs sm:text-base font-bold truncate max-w-[150px] sm:max-w-md">Mock Test Title</h2>
             </div>
             
-            <div class="flex items-center gap-3 bg-slate-900/80 px-4 py-1.5 rounded-lg border border-slate-700">
-                <i class="fa-regular fa-clock text-amber-400 text-base animate-pulse"></i>
-                <div class="text-xs">
-                    <div class="text-slate-400 text-[10px] leading-none uppercase font-semibold">Time Remaining</div>
-                    <div id="examTimer" class="font-mono text-base font-bold text-amber-300">00:00:00</div>
+            <div class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                <i class="fa-regular fa-clock text-amber-400 text-xs sm:text-base animate-pulse"></i>
+                <div class="text-[10px] sm:text-xs">
+                    <div id="examTimer" class="font-mono text-xs sm:text-base font-bold text-amber-300">00:00:00</div>
                 </div>
             </div>
 
-            <button onclick="confirmSubmitExam()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow">
-                Submit Test
+            <button onclick="confirmSubmitExam()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg transition shadow">
+                Submit
             </button>
         </header>
 
         <div class="flex-grow flex flex-col md:flex-row overflow-hidden">
-            <div class="flex-grow flex flex-col justify-between p-4 sm:p-6 overflow-y-auto custom-scrollbar">
-                <div class="max-w-4xl w-full mx-auto space-y-6">
-                    <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+            <div class="flex-grow flex flex-col justify-between p-3 sm:p-6 overflow-y-auto custom-scrollbar">
+                <div class="max-w-4xl w-full mx-auto space-y-4 sm:space-y-6">
+                    <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3">
                         <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider" id="questionNumBadge">
                             Question 1
                         </span>
-                        <div class="text-xs font-semibold text-slate-500">
+                        <div class="text-[11px] sm:text-xs font-semibold text-slate-500">
                             Marks: <span class="text-emerald-600 dark:text-emerald-400">+2.0</span> | Negative: <span class="text-red-500">-0.5</span>
                         </div>
                     </div>
 
-                    <div id="questionText" class="text-sm sm:text-base font-medium text-slate-800 dark:text-slate-100 leading-relaxed">
+                    <div id="questionText" class="text-xs sm:text-base font-medium text-slate-800 dark:text-slate-100 leading-relaxed">
                         Loading Question Text...
                     </div>
 
-                    <div id="optionsContainer" class="space-y-3 pt-2">
-                    </div>
+                    <div id="optionsContainer" class="space-y-2.5 pt-1 sm:pt-2"></div>
                 </div>
 
-                <div class="border-t border-slate-200 dark:border-slate-700 pt-4 mt-6 flex flex-wrap justify-between items-center gap-3 max-w-4xl w-full mx-auto">
-                    <div class="flex gap-2">
-                        <button onclick="markForReview()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 font-semibold text-xs px-3 py-2 rounded-lg border border-amber-300 dark:border-amber-700 transition">
-                            Mark for Review & Next
+                <div class="border-t border-slate-200 dark:border-slate-700 pt-3 mt-4 flex flex-wrap justify-between items-center gap-2 max-w-4xl w-full mx-auto">
+                    <div class="flex gap-1.5 sm:gap-2">
+                        <button onclick="markForReview()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 font-semibold text-[11px] sm:text-xs px-2.5 py-1.5 rounded-lg border border-amber-300 dark:border-amber-700">
+                            Review & Next
                         </button>
-                        <button onclick="clearCurrentResponse()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 transition">
-                            Clear Response
+                        <button onclick="clearCurrentResponse()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-[11px] sm:text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600">
+                            Clear
                         </button>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="navigateQuestion(-1)" id="prevQBtn" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 font-bold text-xs px-4 py-2 rounded-lg transition">
-                            Previous
+                    <div class="flex gap-1.5 sm:gap-2">
+                        <button onclick="navigateQuestion(-1)" id="prevQBtn" class="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-[11px] sm:text-xs px-3 py-1.5 rounded-lg">
+                            Prev
                         </button>
-                        <button onclick="navigateQuestion(1)" id="nextQBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2 rounded-lg transition shadow">
+                        <button onclick="navigateQuestion(1)" id="nextQBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] sm:text-xs px-4 py-1.5 rounded-lg shadow">
                             Save & Next
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="w-full md:w-80 bg-slate-50 dark:bg-slate-800/60 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between shrink-0 overflow-y-auto custom-scrollbar">
-                <div class="space-y-4">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 pb-2">
+            <div class="w-full md:w-80 bg-slate-50 dark:bg-slate-800/60 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 p-3 sm:p-4 flex flex-col justify-between shrink-0 overflow-y-auto max-h-48 md:max-h-none custom-scrollbar">
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 pb-1.5">
                         Question Palette
                     </h3>
 
-                    <div class="grid grid-cols-2 gap-2 text-[11px] font-medium text-slate-600 dark:text-slate-300">
-                        <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-emerald-500 text-white text-[9px] flex items-center justify-center font-bold">1</span> Answered</div>
-                        <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-red-500 text-white text-[9px] flex items-center justify-center font-bold">2</span> Not Answered</div>
-                        <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-amber-400 text-slate-900 text-[9px] flex items-center justify-center font-bold">3</span> Marked Review</div>
-                        <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[9px] flex items-center justify-center font-bold">4</span> Not Visited</div>
+                    <div class="grid grid-cols-2 gap-1.5 text-[10px] font-medium text-slate-600 dark:text-slate-300">
+                        <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-500 text-white text-[8px] flex items-center justify-center font-bold">1</span> Answered</div>
+                        <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-red-500 text-white text-[8px] flex items-center justify-center font-bold">2</span> Unanswered</div>
                     </div>
 
-                    <div id="questionPaletteGrid" class="grid grid-cols-5 gap-2 pt-2">
-                    </div>
+                    <div id="questionPaletteGrid" class="grid grid-cols-6 md:grid-cols-5 gap-1.5 pt-1"></div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <button onclick="confirmSubmitExam()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 rounded-lg shadow transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-circle-check"></i> Complete & Submit Test
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-700 mt-2">
+                    <button onclick="confirmSubmitExam()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i> Submit Exam
                     </button>
                 </div>
             </div>
@@ -661,55 +644,54 @@
     </div>
 
     <!-- RESULT MODAL -->
-    <div id="resultModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden my-8 border border-slate-200 dark:border-slate-700">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white text-center relative">
-                <i class="fa-solid fa-award text-4xl text-amber-300 mb-2"></i>
-                <h2 class="text-2xl font-black">Test Performance & Solutions</h2>
-                <p id="resultExamTitle" class="text-xs text-blue-100 font-medium">Mock Test Results</p>
-                <button onclick="closeResultModal()" class="absolute top-4 right-4 text-white/80 hover:text-white text-lg">
+    <div id="resultModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden my-auto border border-slate-200 dark:border-slate-700">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-6 text-white text-center relative">
+                <i class="fa-solid fa-award text-3xl sm:text-4xl text-amber-300 mb-1"></i>
+                <h2 class="text-lg sm:text-2xl font-black">Test Performance & Solutions</h2>
+                <p id="resultExamTitle" class="text-[11px] sm:text-xs text-blue-100 font-medium">Mock Test Results</p>
+                <button onclick="closeResultModal()" class="absolute top-3 right-3 text-white/80 hover:text-white text-base sm:text-lg">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="p-6 space-y-6">
-                <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 text-center">
-                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-600">
-                        <div class="text-[10px] uppercase font-bold text-slate-400">Total Score</div>
-                        <div id="resScore" class="text-lg font-extrabold text-blue-600 dark:text-blue-400">0/0</div>
+            <div class="p-4 sm:p-6 space-y-4 sm:space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center">
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-2 sm:p-3 rounded-xl border border-slate-200 dark:border-slate-600">
+                        <div class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400">Score</div>
+                        <div id="resScore" class="text-sm sm:text-lg font-extrabold text-blue-600 dark:text-blue-400">0/0</div>
                     </div>
-                    <div class="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200 dark:border-amber-800">
-                        <div class="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400">Rank</div>
-                        <div id="resRank" class="text-lg font-extrabold text-amber-600 dark:text-amber-400">#1 / 1</div>
+                    <div class="bg-amber-50 dark:bg-amber-950/30 p-2 sm:p-3 rounded-xl border border-amber-200 dark:border-amber-800">
+                        <div class="text-[9px] sm:text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400">Rank</div>
+                        <div id="resRank" class="text-sm sm:text-lg font-extrabold text-amber-600 dark:text-amber-400">#1</div>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-600">
-                        <div class="text-[10px] uppercase font-bold text-slate-400">Accuracy</div>
-                        <div id="resAccuracy" class="text-lg font-extrabold text-indigo-500">0%</div>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-2 sm:p-3 rounded-xl border border-slate-200 dark:border-slate-600">
+                        <div class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400">Accuracy</div>
+                        <div id="resAccuracy" class="text-sm sm:text-lg font-extrabold text-indigo-500">0%</div>
                     </div>
-                    <div class="bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800">
-                        <div class="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">Correct</div>
-                        <div id="resCorrect" class="text-lg font-extrabold text-emerald-600">0</div>
+                    <div class="bg-emerald-50 dark:bg-emerald-950/30 p-2 sm:p-3 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                        <div class="text-[9px] sm:text-[10px] uppercase font-bold text-emerald-600">Correct</div>
+                        <div id="resCorrect" class="text-sm sm:text-lg font-extrabold text-emerald-600">0</div>
                     </div>
-                    <div class="bg-red-50 dark:bg-red-950/30 p-3 rounded-xl border border-red-200 dark:border-red-800">
-                        <div class="text-[10px] uppercase font-bold text-red-500">Incorrect</div>
-                        <div id="resWrong" class="text-lg font-extrabold text-red-500">0</div>
+                    <div class="bg-red-50 dark:bg-red-950/30 p-2 sm:p-3 rounded-xl border border-red-200 dark:border-red-800">
+                        <div class="text-[9px] sm:text-[10px] uppercase font-bold text-red-500">Wrong</div>
+                        <div id="resWrong" class="text-sm sm:text-lg font-extrabold text-red-500">0</div>
                     </div>
-                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-300 dark:border-slate-600">
-                        <div class="text-[10px] uppercase font-bold text-slate-500">Unattempted</div>
-                        <div id="resUnattempted" class="text-lg font-extrabold text-slate-600 dark:text-slate-300">0</div>
+                    <div class="bg-slate-100 dark:bg-slate-800 p-2 sm:p-3 rounded-xl border border-slate-300 dark:border-slate-600">
+                        <div class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500">Skipped</div>
+                        <div id="resUnattempted" class="text-sm sm:text-lg font-extrabold text-slate-600 dark:text-slate-300">0</div>
                     </div>
                 </div>
 
                 <div>
-                    <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-file-lines text-blue-500"></i> Question Solutions & Detailed Explanations
+                    <h3 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 mb-2 sm:mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-blue-500"></i> Question Solutions
                     </h3>
-                    <div id="solutionsContainer" class="space-y-4 max-h-80 overflow-y-auto custom-scrollbar p-1">
-                    </div>
+                    <div id="solutionsContainer" class="space-y-3 p-1"></div>
                 </div>
 
-                <div class="flex justify-end pt-2">
-                    <button onclick="closeResultModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow transition">
+                <div class="flex justify-end">
+                    <button onclick="closeResultModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-5 py-2 rounded-xl shadow transition">
                         Close Solutions
                     </button>
                 </div>
@@ -718,23 +700,23 @@
     </div>
 
     <!-- CREATE TEST MODAL -->
-    <div id="createTestModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+    <div id="createTestModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-file-circle-plus text-blue-600"></i> Create New Mock Test
             </h3>
-            <form onsubmit="handleCreateTest(event)" class="space-y-4 text-xs">
+            <form onsubmit="handleCreateTest(event)" class="space-y-3.5 text-xs">
                 <div>
                     <label class="block font-semibold mb-1">Test Title</label>
-                    <input type="text" id="newTestTitle" required placeholder="e.g. Odisha Police Constable Practice Test 01" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                    <input type="text" id="newTestTitle" required placeholder="e.g. Odisha Police Practice Test 01" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold mb-1">Exam Category</label>
                         <input type="text" id="newTestCategory" required placeholder="e.g. Odisha Police Constable" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                     </div>
                     <div>
-                        <label class="block font-semibold mb-1">Mock Type / Sub-folder</label>
+                        <label class="block font-semibold mb-1">Mock Type</label>
                         <select id="newTestSubtype" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium">
                             <option value="chapter">Chapter Wise Test</option>
                             <option value="full" selected>Full Mock Test</option>
@@ -742,15 +724,13 @@
                         </select>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold mb-1">Time Limit (Minutes)</label>
-                        <input type="number" id="newTestTime" required min="1" value="15" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
-                    </div>
+                <div>
+                    <label class="block font-semibold mb-1">Time Limit (Minutes)</label>
+                    <input type="number" id="newTestTime" required min="1" value="15" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                 </div>
                 <div>
                     <label class="block font-semibold mb-1">Description</label>
-                    <textarea id="newTestDesc" rows="3" placeholder="Brief description of subjects covered..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"></textarea>
+                    <textarea id="newTestDesc" rows="2" placeholder="Brief description..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeCreateTestModal()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600">Cancel</button>
@@ -761,19 +741,19 @@
     </div>
 
     <!-- PDF UPLOAD & PARSE MODAL -->
-    <div id="uploadPdfModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 my-8">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center gap-2">
+    <div id="uploadPdfModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center gap-2">
                 <i class="fa-solid fa-file-pdf text-red-600"></i> Direct PDF Question Auto-Importer
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Upload a PDF containing questions. The system will auto-extract questions, options, and solutions directly into this mock test.</p>
+            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mb-4">Upload a PDF containing questions. The system will auto-extract questions and options into this test.</p>
             
             <form onsubmit="handlePdfImport(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="pdfTargetTestId">
-                <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-blue-500 transition cursor-pointer bg-slate-50 dark:bg-slate-900/50">
-                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
-                    <label class="block font-bold text-slate-700 dark:text-slate-200 mb-1 cursor-pointer">Choose Question Paper PDF File</label>
-                    <input type="file" id="pdfFileInput" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 sm:p-6 text-center hover:border-blue-500 transition cursor-pointer bg-slate-50 dark:bg-slate-900/50">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl sm:text-3xl text-blue-500 mb-2"></i>
+                    <label class="block font-bold text-slate-700 dark:text-slate-200 mb-1 cursor-pointer">Choose PDF Question Paper</label>
+                    <input type="file" id="pdfFileInput" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
                 </div>
 
                 <div id="pdfProgress" class="hidden text-xs text-blue-600 font-bold flex items-center gap-2">
@@ -783,7 +763,7 @@
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeUploadPdfModal()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600">Cancel</button>
                     <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-1.5">
-                        <i class="fa-solid fa-bolt"></i> Extract & Add Questions
+                        <i class="fa-solid fa-bolt"></i> Extract Questions
                     </button>
                 </div>
             </form>
@@ -791,20 +771,19 @@
     </div>
 
     <!-- ADD / EDIT QUESTION MODAL -->
-    <div id="addQuestionModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 my-8">
-            <h3 id="questionModalTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+    <div id="addQuestionModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <h3 id="questionModalTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-circle-question text-emerald-600"></i> Add Question to Mock Test
             </h3>
             <form onsubmit="handleAddQuestion(event)" class="space-y-3 text-xs">
                 <input type="hidden" id="targetTestId">
-                <input type="hidden" id="editingQuestionId">
 
                 <div>
                     <label class="block font-semibold mb-1">Question Text</label>
                     <textarea id="qText" required rows="2" placeholder="Type question..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"></textarea>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
                         <label class="block font-semibold mb-1">Option A</label>
                         <input type="text" id="qOptA" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
@@ -832,10 +811,10 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1">Text Solution / Explanation</label>
-                    <textarea id="qExplanation" rows="2" placeholder="Type step-by-step solution..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"></textarea>
+                    <label class="block font-semibold mb-1">Explanation</label>
+                    <textarea id="qExplanation" rows="2" placeholder="Type solution..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"></textarea>
                 </div>
-                <div class="flex justify-end gap-2 pt-2">
+                <div class="flex justify-end gap-2 pt-1">
                     <button type="button" onclick="closeAddQuestionModal()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600">Cancel</button>
                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg">Save Question</button>
                 </div>
@@ -844,37 +823,37 @@
     </div>
 
     <!-- ADD YOUTUBE VIDEO WITH PDF LINK MODAL -->
-    <div id="addVideoModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+    <div id="addVideoModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <i class="fa-brands fa-youtube text-red-600"></i> Add YouTube Class & PDF
             </h3>
-            <form onsubmit="handleAddVideo(event)" class="space-y-4 text-xs">
+            <form onsubmit="handleAddVideo(event)" class="space-y-3.5 text-xs">
                 <div>
-                    <label class="block font-semibold mb-1">Video Class Title</label>
-                    <input type="text" id="vTitle" required placeholder="e.g. Odisha Police Constable GK Concepts" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                    <label class="block font-semibold mb-1">Video Title</label>
+                    <input type="text" id="vTitle" required placeholder="e.g. Odisha Police GK Concepts" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1">YouTube Video URL or ID</label>
+                    <label class="block font-semibold mb-1">YouTube URL / Video ID</label>
                     <input type="text" id="vId" required placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold mb-1">Target Exam Category</label>
+                        <label class="block font-semibold mb-1">Exam Category</label>
                         <input type="text" id="vTag" required placeholder="e.g. Odisha Police Constable" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                     </div>
                     <div>
-                        <label class="block font-semibold mb-1">Folder / Subject Name</label>
-                        <input type="text" id="vFolder" required placeholder="e.g. Maths, GK, English" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                        <label class="block font-semibold mb-1">Folder Name</label>
+                        <input type="text" id="vFolder" required placeholder="e.g. Maths, GK" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                     </div>
                 </div>
                 <div>
-                    <label class="block font-semibold mb-1">Attach Notes / Class PDF Drive URL (Optional)</label>
-                    <input type="url" id="vPdfUrl" placeholder="https://drive.google.com/file/d/... or PDF Direct Link" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                    <label class="block font-semibold mb-1">PDF Drive URL (Optional)</label>
+                    <input type="url" id="vPdfUrl" placeholder="https://drive.google.com/..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeAddVideoModal()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600">Cancel</button>
-                    <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg">Add Video Class</button>
+                    <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg">Add Class</button>
                 </div>
             </form>
         </div>
@@ -882,6 +861,29 @@
 
     <!-- Application Script -->
     <script>
+        // FIREBASE REALTIME DATABASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSrH-LReU-ydOdJtr-KjsRLjw4c5TYPBU",
+            authDomain: "defence-academy-lms.firebaseapp.com",
+            databaseURL: "https://defence-academy-lms-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "defence-academy-lms",
+            storageBucket: "defence-academy-lms.firebasestorage.app",
+            messagingSenderId: "859331784539",
+            appId: "1:859331784539:web:722e01f2753cdf3775747e",
+            measurementId: "G-XFK0E7J3YX"
+        };
+
+        let db = null;
+        let isFirebaseInitialized = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            isFirebaseInitialized = true;
+        } catch (e) {
+            console.warn("Firebase config using local fallback until database credentials are added.");
+        }
+
         let appData = {
             currentUser: null,
             students: [],
@@ -929,14 +931,6 @@
                     tag: 'Odisha Police Constable',
                     folder: 'Maths',
                     pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-                },
-                {
-                    id: 'vid_2',
-                    title: 'Odisha Police General Knowledge Concepts',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    tag: 'Odisha Police Constable',
-                    folder: 'GK',
-                    pdfUrl: ''
                 }
             ],
             results: []
@@ -974,21 +968,39 @@
         let timeRemainingSeconds = 0;
 
         function initApp() {
-            const saved = localStorage.getItem('free_mock_app_data');
-            if (saved) {
-                try { 
-                    appData = JSON.parse(saved); 
-                    if (!appData.videos) appData.videos = [];
-                    if (!appData.students) appData.students = [];
-                    if (!appData.results) appData.results = [];
-                    appData.videos.forEach(v => {
-                        if (!v.folder) v.folder = 'General';
-                    });
-                } catch(e){}
+            if (isFirebaseInitialized) {
+                db.ref('lms_data').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const activeUserBeforeSync = appData.currentUser;
+                        appData = data;
+                        if (!appData.videos) appData.videos = [];
+                        if (!appData.students) appData.students = [];
+                        if (!appData.results) appData.results = [];
+                        if (!appData.tests) appData.tests = [];
+                        appData.currentUser = activeUserBeforeSync;
+                    } else {
+                        saveData();
+                    }
+                    renderAppUI();
+                });
             } else {
-                saveData();
+                const saved = localStorage.getItem('free_mock_app_data');
+                if (saved) {
+                    try { 
+                        appData = JSON.parse(saved); 
+                        if (!appData.videos) appData.videos = [];
+                        if (!appData.students) appData.students = [];
+                        if (!appData.results) appData.results = [];
+                    } catch(e){}
+                } else {
+                    saveData();
+                }
+                renderAppUI();
             }
+        }
 
+        function renderAppUI() {
             if (!appData.currentUser) {
                 showAuthScreen();
             } else {
@@ -1008,6 +1020,9 @@
 
         function saveData() {
             localStorage.setItem('free_mock_app_data', JSON.stringify(appData));
+            if (isFirebaseInitialized) {
+                db.ref('lms_data').set(appData);
+            }
         }
 
         function toggleDarkMode() {
@@ -1058,13 +1073,13 @@
         function setMockFolderFilter(type) {
             currentMockSubtypeFilter = type;
             document.querySelectorAll('.mock-folder-btn').forEach(btn => {
-                btn.className = 'mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1.5';
+                btn.className = 'mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center gap-1';
             });
 
-            if (type === 'ALL') document.getElementById('mockFolderAll').className = 'mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm flex items-center gap-1.5';
-            if (type === 'chapter') document.getElementById('mockFolderChapter').className = 'mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-1.5';
-            if (type === 'full') document.getElementById('mockFolderFull').className = 'mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-sm flex items-center gap-1.5';
-            if (type === 'pyq') document.getElementById('mockFolderPyq').className = 'mock-folder-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-900 shadow-sm flex items-center gap-1.5';
+            if (type === 'ALL') document.getElementById('mockFolderAll').className = 'mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm flex items-center gap-1';
+            if (type === 'chapter') document.getElementById('mockFolderChapter').className = 'mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-1';
+            if (type === 'full') document.getElementById('mockFolderFull').className = 'mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-sm flex items-center gap-1';
+            if (type === 'pyq') document.getElementById('mockFolderPyq').className = 'mock-folder-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-900 shadow-sm flex items-center gap-1';
 
             renderStudentMocks();
         }
@@ -1089,7 +1104,7 @@
             const folders = Array.from(new Set(availableVideos.map(v => v.folder || 'General').filter(Boolean)));
 
             let tabsHtml = `
-                <button onclick="setVideoFolderFilter('ALL')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${currentVideoFolderFilter === 'ALL' ? 'bg-red-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'} flex items-center gap-1.5">
+                <button onclick="setVideoFolderFilter('ALL')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${currentVideoFolderFilter === 'ALL' ? 'bg-red-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'} flex items-center gap-1">
                     <i class="fa-solid fa-folder-open"></i> All Subjects
                 </button>
             `;
@@ -1097,7 +1112,7 @@
             folders.forEach(folder => {
                 const isActive = currentVideoFolderFilter === folder;
                 tabsHtml += `
-                    <button onclick="setVideoFolderFilter('${folder}')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${isActive ? 'bg-red-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'} flex items-center gap-1.5">
+                    <button onclick="setVideoFolderFilter('${folder}')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${isActive ? 'bg-red-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'} flex items-center gap-1">
                         <i class="fa-solid fa-folder text-amber-500"></i> ${folder}
                     </button>
                 `;
@@ -1112,9 +1127,9 @@
 
             const currentUserObj = appData.students.find(s => s.id === appData.currentUser);
             if (currentUserObj && currentUserObj.blocked) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-200 p-6">
-                    <i class="fa-solid fa-lock text-4xl text-red-500 mb-2"></i>
-                    <p class="text-xs font-bold text-red-600">Access Restricted: Your account has been blocked by the admin. You cannot access mock tests.</p>
+                grid.innerHTML = `<div class="col-span-full text-center py-8 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-200 p-4">
+                    <i class="fa-solid fa-lock text-3xl text-red-500 mb-2"></i>
+                    <p class="text-xs font-bold text-red-600">Access Restricted: Your account has been blocked by the admin.</p>
                 </div>`;
                 return;
             }
@@ -1129,8 +1144,8 @@
             }
 
             if (filteredTests.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
-                    <i class="fa-solid fa-folder-open text-4xl text-slate-300 dark:text-slate-600 mb-2"></i>
+                grid.innerHTML = `<div class="col-span-full text-center py-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+                    <i class="fa-solid fa-folder-open text-3xl text-slate-300 dark:text-slate-600 mb-2"></i>
                     <p class="text-xs font-semibold text-slate-400">No tests available for the selected category folder.</p>
                 </div>`;
                 return;
@@ -1139,31 +1154,31 @@
             grid.innerHTML = filteredTests.map(test => {
                 const existingResult = appData.results.find(r => r.studentId === appData.currentUser && r.testId === test.id);
                 
-                let subtypeBadge = '<span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Full Mock</span>';
-                if (test.subtype === 'chapter') subtypeBadge = '<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Chapter Test</span>';
-                if (test.subtype === 'pyq') subtypeBadge = '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">PYQ</span>';
+                let subtypeBadge = '<span class="bg-purple-100 text-purple-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">Full Mock</span>';
+                if (test.subtype === 'chapter') subtypeBadge = '<span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">Chapter Test</span>';
+                if (test.subtype === 'pyq') subtypeBadge = '<span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">PYQ</span>';
 
                 return `
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200">
                     <div>
-                        <div class="flex justify-between items-start mb-2 gap-2 flex-wrap">
-                            <span class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase">${test.category}</span>
+                        <div class="flex justify-between items-start mb-2 gap-1 flex-wrap">
+                            <span class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase truncate">${test.category}</span>
                             ${subtypeBadge}
                         </div>
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100 mb-1">${test.title}</h4>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">${test.description}</p>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 mb-1">${test.title}</h4>
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mb-3 line-clamp-2">${test.description}</p>
                     </div>
-                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex flex-col gap-2">
-                        <div class="flex justify-between items-center text-xs text-slate-500 font-medium">
+                    <div class="pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 font-medium">
                             <span><i class="fa-regular fa-clock mr-1"></i>${test.timeMinutes} Mins</span>
-                            <span>${test.questions.length} Questions</span>
+                            <span>${test.questions ? test.questions.length : 0} Questions</span>
                         </div>
-                        <div class="flex gap-2 mt-1">
+                        <div class="flex gap-2 mt-0.5">
                             ${existingResult ? `
-                                <button onclick="viewSolutionModal('${existingResult.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-eye"></i> View Solution
+                                <button onclick="viewSolutionModal('${existingResult.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-eye"></i> Solution
                                 </button>
-                                <button onclick="startExam('${test.id}')" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs px-3 py-2 rounded-lg transition" title="Re-attempt Test">
+                                <button onclick="startExam('${test.id}')" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs px-2.5 py-2 rounded-lg transition" title="Re-attempt Test">
                                     <i class="fa-solid fa-rotate-right"></i>
                                 </button>
                             ` : `
@@ -1182,9 +1197,9 @@
             const currentUserObj = appData.students.find(s => s.id === appData.currentUser);
 
             if (currentUserObj && currentUserObj.blocked) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-200 p-6">
-                    <i class="fa-solid fa-video-slash text-4xl text-red-500 mb-2"></i>
-                    <p class="text-xs font-bold text-red-600">Access Restricted: Your account is blocked by the admin. You cannot watch video classes.</p>
+                grid.innerHTML = `<div class="col-span-full text-center py-8 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-200 p-4">
+                    <i class="fa-solid fa-video-slash text-3xl text-red-500 mb-2"></i>
+                    <p class="text-xs font-bold text-red-600">Access Restricted: Your account is blocked by admin.</p>
                 </div>`;
                 return;
             }
@@ -1201,27 +1216,27 @@
             }
 
             if (filteredVideos.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-400 py-8">No video lectures uploaded in this folder yet.</p>`;
+                grid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-400 py-6">No video lectures available.</p>`;
                 return;
             }
 
             grid.innerHTML = filteredVideos.map(v => {
                 const cleanId = extractYouTubeId(v.youtubeId);
                 return `
-                <div class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition">
+                <div class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div class="aspect-video bg-slate-900">
-                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/${cleanId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/${cleanId}" frameborder="0" allowfullscreen></iframe>
                     </div>
-                    <div class="p-4 space-y-3">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-[10px] font-bold uppercase text-red-600 bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded">${v.tag}</span>
-                            <span class="text-[10px] font-bold uppercase text-amber-700 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 px-2 py-0.5 rounded"><i class="fa-solid fa-folder mr-1"></i>${v.folder || 'General'}</span>
+                    <div class="p-3.5 space-y-2.5">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-[9px] font-bold uppercase text-red-600 bg-red-50 dark:bg-red-950/40 px-1.5 py-0.5 rounded">${v.tag}</span>
+                            <span class="text-[9px] font-bold uppercase text-amber-700 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 px-1.5 py-0.5 rounded">${v.folder || 'General'}</span>
                         </div>
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${v.title}</h4>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${v.title}</h4>
                         
                         ${v.pdfUrl ? `
-                            <a href="${v.pdfUrl}" target="_blank" class="inline-flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-3 py-2 rounded-lg hover:bg-red-100 transition w-full justify-center">
-                                <i class="fa-solid fa-file-pdf text-sm"></i> Download / View Attached Class PDF
+                            <a href="${v.pdfUrl}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-3 py-1.5 rounded-lg hover:bg-red-100 transition w-full justify-center">
+                                <i class="fa-solid fa-file-pdf"></i> Download Attached PDF
                             </a>
                         ` : ''}
                     </div>
@@ -1268,7 +1283,6 @@
             renderStudentVideos();
             renderAdminVideos();
             closeAddVideoModal();
-            alert("YouTube Class added successfully!");
         }
 
         function openAddVideoModal() { document.getElementById('addVideoModal').classList.remove('hidden'); }
@@ -1277,20 +1291,19 @@
         function renderAdminVideos() {
             const grid = document.getElementById('adminVideoList');
             if (appData.videos.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-400 py-8">No videos added yet.</p>`;
+                grid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-400 py-6">No videos added yet.</p>`;
                 return;
             }
             grid.innerHTML = appData.videos.map(v => `
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center gap-2 flex-wrap mb-1">
-                            <span class="text-[10px] font-bold uppercase text-red-600 bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded">${v.tag}</span>
-                            <span class="text-[10px] font-bold uppercase text-amber-700 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 px-2 py-0.5 rounded"><i class="fa-solid fa-folder mr-1"></i>${v.folder || 'General'}</span>
+                        <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                            <span class="text-[9px] font-bold uppercase text-red-600 bg-red-50 px-1.5 py-0.5 rounded">${v.tag}</span>
+                            <span class="text-[9px] font-bold uppercase text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">${v.folder || 'General'}</span>
                         </div>
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100 mt-2">${v.title}</h4>
-                        ${v.pdfUrl ? `<p class="text-xs text-blue-500 font-semibold mt-1 truncate"><i class="fa-solid fa-paperclip"></i> PDF Attached</p>` : ''}
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 mt-1">${v.title}</h4>
                     </div>
-                    <button onclick="deleteVideo('${v.id}')" class="mt-4 w-full bg-red-50 text-red-600 font-bold text-xs py-1.5 rounded-lg border border-red-200">
+                    <button onclick="deleteVideo('${v.id}')" class="mt-3 w-full bg-red-50 text-red-600 font-bold text-xs py-1 rounded-lg border border-red-200">
                         Delete Class
                     </button>
                 </div>
@@ -1298,7 +1311,7 @@
         }
 
         function deleteVideo(vid) {
-            if (confirm("Are you sure you want to delete this video lecture?")) {
+            if (confirm("Delete this video lecture?")) {
                 appData.videos = appData.videos.filter(v => v.id !== vid);
                 saveData();
                 populateCategoryFilters();
@@ -1364,9 +1377,8 @@
                 renderAdminStudents();
                 renderAdminResults();
                 renderAdminVideos();
-                alert('Admin login successful!');
             } else {
-                alert('Invalid Admin Email or Password!');
+                alert('Invalid Admin Credentials!');
             }
         }
 
@@ -1379,7 +1391,7 @@
 
             const existingStudent = appData.students.find(s => s.email.toLowerCase() === email.toLowerCase());
             if (existingStudent) {
-                alert('An account with this email already exists! Please log in.');
+                alert('An account with this email already exists!');
                 return;
             }
 
@@ -1402,7 +1414,6 @@
             renderStudentVideoFolderTabs();
             renderStudentVideos();
             renderStudentHistory();
-            alert('Signup successful! Welcome to DEFENCE ACADEMY, BERHAMPUR.');
         }
 
         function handleStudentLogin(e) {
@@ -1422,9 +1433,8 @@
                 renderStudentVideoFolderTabs();
                 renderStudentVideos();
                 renderStudentHistory();
-                alert(`Welcome back, ${student.name}!`);
             } else {
-                alert('Invalid email or password. Please try again or sign up.');
+                alert('Invalid email or password.');
             }
         }
 
@@ -1444,7 +1454,7 @@
 
             if (appData.currentUser === 'admin') {
                 roleText.innerText = 'Admin Portal Access';
-                statusBadge.className = 'w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse';
+                statusBadge.className = 'w-2 h-2 rounded-full bg-blue-500 animate-pulse';
                 blockedTag.classList.add('hidden');
                 blockedBanner.classList.add('hidden');
                 studentPortal.classList.add('hidden');
@@ -1452,7 +1462,7 @@
             } else if (appData.currentUser) {
                 const user = appData.students.find(s => s.id === appData.currentUser);
                 roleText.innerText = user ? user.name : 'Student View';
-                statusBadge.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+                statusBadge.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
                 adminPortal.classList.add('hidden');
                 studentPortal.classList.remove('hidden');
 
@@ -1471,9 +1481,9 @@
             document.getElementById('studentVideosTab').classList.toggle('hidden', tab !== 'videos');
             document.getElementById('studentHistoryTab').classList.toggle('hidden', tab !== 'history');
 
-            document.getElementById('tabBtnMocks').className = tab === 'mocks' ? 'pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2' : 'pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-2';
-            document.getElementById('tabBtnVideos').className = tab === 'videos' ? 'pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2' : 'pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-2';
-            document.getElementById('tabBtnHistory').className = tab === 'history' ? 'pb-3 text-sm font-bold border-b-2 border-transparent text-slate-500 flex items-center gap-2' : 'pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2';
+            document.getElementById('tabBtnMocks').className = tab === 'mocks' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('tabBtnVideos').className = tab === 'videos' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('tabBtnHistory').className = tab === 'history' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
         }
 
         function switchAdminTab(tab) {
@@ -1482,13 +1492,12 @@
             document.getElementById('adminResultsTab').classList.toggle('hidden', tab !== 'results');
             document.getElementById('adminVideosTab').classList.toggle('hidden', tab !== 'videos');
 
-            document.getElementById('adminTabBtnTests').className = tab === 'tests' ? 'pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2' : 'pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-2';
-            document.getElementById('adminTabBtnStudents').className = tab === 'students' ? 'pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2' : 'pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-2';
-            document.getElementById('adminTabBtnResults').className = tab === 'results' ? 'pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2' : 'pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-2';
-            document.getElementById('adminTabBtnVideos').className = tab === 'videos' ? 'pb-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2' : 'pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-2';
+            document.getElementById('adminTabBtnTests').className = tab === 'tests' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('adminTabBtnStudents').className = tab === 'students' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('adminTabBtnResults').className = tab === 'results' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('adminTabBtnVideos').className = tab === 'videos' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
         }
 
-        /* --- ADMIN STUDENT MANAGEMENT (FEATURE #2: BLOCK & DELETE) --- */
         function renderAdminStudents() {
             const tbody = document.getElementById('studentTableBody');
             const searchVal = (document.getElementById('studentDirectorySearch')?.value || '').toLowerCase();
@@ -1499,32 +1508,32 @@
             }
 
             if (studentsList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-6 text-center text-slate-400">No students registered yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-slate-400">No students registered.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = studentsList.map(student => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-xs">
+                    <td class="px-4 sm:px-6 py-3 font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">
                             ${student.name.charAt(0).toUpperCase()}
                         </div>
                         ${student.name}
                     </td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-300 font-mono">${student.parentContact || 'N/A'}</td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-300">${student.email}</td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 sm:px-6 py-3 text-slate-600 dark:text-slate-300 font-mono">${student.parentContact || 'N/A'}</td>
+                    <td class="px-4 sm:px-6 py-3 text-slate-600 dark:text-slate-300">${student.email}</td>
+                    <td class="px-4 sm:px-6 py-3">
                         ${student.blocked ? 
-                            `<span class="bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase">Blocked</span>` : 
-                            `<span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase">Active</span>`
+                            `<span class="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Blocked</span>` : 
+                            `<span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Active</span>`
                         }
                     </td>
-                    <td class="px-6 py-4 text-right space-x-2">
-                        <button onclick="toggleBlockStudent('${student.id}')" class="px-3 py-1 rounded text-xs font-bold ${student.blocked ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'} transition">
-                            <i class="fa-solid ${student.blocked ? 'fa-lock-open' : 'fa-lock'} mr-1"></i> ${student.blocked ? 'Unblock' : 'Block Student'}
+                    <td class="px-4 sm:px-6 py-3 text-right space-x-1.5">
+                        <button onclick="toggleBlockStudent('${student.id}')" class="px-2.5 py-1 rounded text-[11px] font-bold ${student.blocked ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                            ${student.blocked ? 'Unblock' : 'Block'}
                         </button>
-                        <button onclick="deleteStudentAccount('${student.id}')" class="px-3 py-1 rounded text-xs font-bold bg-red-100 text-red-700 hover:bg-red-200 transition">
-                            <i class="fa-solid fa-trash mr-1"></i> Delete Account
+                        <button onclick="deleteStudentAccount('${student.id}')" class="px-2.5 py-1 rounded text-[11px] font-bold bg-red-100 text-red-700">
+                            Delete
                         </button>
                     </td>
                 </tr>
@@ -1538,13 +1547,12 @@
             saveData();
             renderAdminStudents();
             renderUserStatus();
-            alert(`Student "${student.name}" has been ${student.blocked ? 'blocked' : 'unblocked'}.`);
         }
 
         function deleteStudentAccount(studentId) {
             const student = appData.students.find(s => s.id === studentId);
             if (!student) return;
-            if (confirm(`Are you sure you want to permanently delete student "${student.name}"? This action cannot be undone.`)) {
+            if (confirm(`Permanently delete student "${student.name}"?`)) {
                 appData.students = appData.students.filter(s => s.id !== studentId);
                 appData.results = appData.results.filter(r => r.studentId !== studentId);
                 if (appData.currentUser === studentId) appData.currentUser = null;
@@ -1552,11 +1560,9 @@
                 renderAdminStudents();
                 renderAdminResults();
                 renderUserStatus();
-                alert(`Student account deleted.`);
             }
         }
 
-        /* --- ADMIN RESULTS & SEARCH STUDENT PDF REPORT DISPATCH (FEATURE #3) --- */
         function renderAdminResults() {
             const tbody = document.getElementById('adminResultsTableBody');
             const searchVal = (document.getElementById('adminStudentSearchInput')?.value || '').toLowerCase();
@@ -1571,46 +1577,41 @@
             }
 
             if (resultsList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-6 text-center text-slate-400">No exam results recorded for the search query.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-400">No exam results.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = resultsList.map(res => {
-                const student = appData.students.find(s => s.id === res.studentId) || { name: 'Unknown Student', parentContact: '', email: '' };
+                const student = appData.students.find(s => s.id === res.studentId) || { name: 'Unknown', parentContact: '', email: '' };
                 const percentage = Math.round((res.score / res.totalMarks) * 100) || 0;
-
-                const msg = encodeURIComponent(`*DEFENCE ACADEMY, BERHAMPUR - Exam Score Card*\nStudent: ${student.name}\nExam: ${res.testTitle}\nScore: ${res.score}/${res.totalMarks} (${percentage}%)\nAccuracy: ${res.accuracy}%\nRank: #${res.rank}\nDate: ${res.date}`);
+                const msg = encodeURIComponent(`*DEFENCE ACADEMY, BERHAMPUR*\nStudent: ${student.name}\nExam: ${res.testTitle}\nScore: ${res.score}/${res.totalMarks} (${percentage}%)\nRank: #${res.rank}`);
                 const waUrl = `https://wa.me/${student.parentContact}?text=${msg}`;
 
                 return `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-100">${student.name}</td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">${res.testTitle}</td>
-                    <td class="px-6 py-4 font-bold text-blue-600">${res.score}/${res.totalMarks} (${percentage}%)</td>
-                    <td class="px-6 py-4 font-bold text-amber-600">#${res.rank}</td>
-                    <td class="px-6 py-4 font-semibold text-emerald-600">${res.accuracy}%</td>
-                    <td class="px-6 py-4 text-slate-500 text-xs">${res.date}</td>
-                    <td class="px-6 py-4 text-right space-x-2">
-                        <button onclick="downloadStudentDetailedPdf('${res.studentId}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow transition inline-flex items-center gap-1">
-                            <i class="fa-solid fa-file-pdf"></i> Activity PDF
+                    <td class="px-4 sm:px-6 py-3 font-bold text-slate-800 dark:text-slate-100">${student.name}</td>
+                    <td class="px-4 sm:px-6 py-3 text-slate-600 dark:text-slate-300 font-medium">${res.testTitle}</td>
+                    <td class="px-4 sm:px-6 py-3 font-bold text-blue-600">${res.score}/${res.totalMarks} (${percentage}%)</td>
+                    <td class="px-4 sm:px-6 py-3 font-bold text-amber-600">#${res.rank}</td>
+                    <td class="px-4 sm:px-6 py-3 font-semibold text-emerald-600">${res.accuracy}%</td>
+                    <td class="px-4 sm:px-6 py-3 text-slate-500 text-[11px]">${res.date}</td>
+                    <td class="px-4 sm:px-6 py-3 text-right space-x-1.5">
+                        <button onclick="downloadStudentDetailedPdf('${res.studentId}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] px-2.5 py-1 rounded shadow">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
                         </button>
                         ${student.parentContact ? `
-                            <a href="${waUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow transition inline-flex items-center gap-1">
-                                <i class="fa-brands fa-whatsapp"></i> Dispatch Score
+                            <a href="${waUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] px-2.5 py-1 rounded shadow inline-block">
+                                <i class="fa-brands fa-whatsapp"></i> Dispatch
                             </a>
-                        ` : '<span class="text-slate-400 italic">No Parent No.</span>'}
+                        ` : ''}
                     </td>
                 </tr>
             `}).join('');
         }
 
-        /* GENERATE COMPREHENSIVE PDF REPORT FOR ALL ACTIVITY OF STUDENT */
         function downloadStudentDetailedPdf(studentId) {
             const student = appData.students.find(s => s.id === studentId);
-            if (!student) {
-                alert("Student profile not found.");
-                return;
-            }
+            if (!student) return;
 
             const studentAttempts = appData.results.filter(r => r.studentId === studentId);
 
@@ -1621,49 +1622,39 @@
             document.getElementById('pdfGenDate').innerText = new Date().toLocaleDateString('en-IN');
 
             const attemptsBody = document.getElementById('pdfAttemptsTableBody');
-            if (studentAttempts.length === 0) {
-                attemptsBody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-slate-400">No mock tests attempted yet.</td></tr>`;
-            } else {
-                attemptsBody.innerHTML = studentAttempts.map((att, idx) => {
-                    const percentage = Math.round((att.score / att.totalMarks) * 100) || 0;
-                    return `
-                        <tr>
-                            <td class="p-2 border border-slate-300 font-bold">${idx + 1}</td>
-                            <td class="p-2 border border-slate-300 font-semibold">${att.testTitle}</td>
-                            <td class="p-2 border border-slate-300">${att.date}</td>
-                            <td class="p-2 border border-slate-300 font-bold">${att.score}/${att.totalMarks}</td>
-                            <td class="p-2 border border-slate-300 font-bold text-blue-600">${percentage}%</td>
-                            <td class="p-2 border border-slate-300">${att.accuracy}%</td>
-                            <td class="p-2 border border-slate-300 font-bold text-amber-600">#${att.rank}</td>
-                        </tr>
-                    `;
-                }).join('');
-            }
+            attemptsBody.innerHTML = studentAttempts.map((att, idx) => {
+                const percentage = Math.round((att.score / att.totalMarks) * 100) || 0;
+                return `
+                    <tr>
+                        <td class="p-1.5 border border-slate-300 font-bold">${idx + 1}</td>
+                        <td class="p-1.5 border border-slate-300 font-semibold">${att.testTitle}</td>
+                        <td class="p-1.5 border border-slate-300">${att.date}</td>
+                        <td class="p-1.5 border border-slate-300 font-bold">${att.score}/${att.totalMarks}</td>
+                        <td class="p-1.5 border border-slate-300 font-bold text-blue-600">${percentage}%</td>
+                        <td class="p-1.5 border border-slate-300">${att.accuracy}%</td>
+                    </tr>
+                `;
+            }).join('');
 
             const videoBody = document.getElementById('pdfVideoActivityTableBody');
-            if (appData.videos.length === 0) {
-                videoBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">No video classes available in portal.</td></tr>`;
-            } else {
-                videoBody.innerHTML = appData.videos.map((vid, idx) => `
-                    <tr>
-                        <td class="p-2 border border-slate-300 font-bold">${idx + 1}</td>
-                        <td class="p-2 border border-slate-300 font-semibold">${vid.title}</td>
-                        <td class="p-2 border border-slate-300">${vid.folder || 'General'}</td>
-                        <td class="p-2 border border-slate-300">${vid.tag}</td>
-                        <td class="p-2 border border-slate-300 text-emerald-600 font-bold">Available / Watched</td>
-                    </tr>
-                `).join('');
-            }
+            videoBody.innerHTML = appData.videos.map((vid, idx) => `
+                <tr>
+                    <td class="p-1.5 border border-slate-300 font-bold">${idx + 1}</td>
+                    <td class="p-1.5 border border-slate-300 font-semibold">${vid.title}</td>
+                    <td class="p-1.5 border border-slate-300">${vid.folder || 'General'}</td>
+                    <td class="p-1.5 border border-slate-300">${vid.tag}</td>
+                </tr>
+            `).join('');
 
             const element = document.getElementById('pdfReportTemplate');
             element.classList.remove('hidden');
 
             const opt = {
-                margin:       0.4,
-                filename:     `${student.name.replace(/\s+/g, '_')}_Activity_Report.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                margin: 0.4,
+                filename: `${student.name.replace(/\s+/g, '_')}_Report.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
@@ -1671,17 +1662,16 @@
             });
         }
 
-        /* EXAM INTERFACE CORE EXECUTION */
         function startExam(testId) {
             const user = appData.students.find(s => s.id === appData.currentUser);
             if (user && user.blocked) {
-                alert("Your account is restricted by institute admin. You cannot start exams.");
+                alert("Your account is restricted by admin.");
                 return;
             }
 
             const test = appData.tests.find(t => t.id === testId);
-            if (!test || test.questions.length === 0) {
-                alert("This exam contains no questions yet! Please ask administrator to add questions.");
+            if (!test || !test.questions || test.questions.length === 0) {
+                alert("This test has no questions added yet.");
                 return;
             }
 
@@ -1712,7 +1702,7 @@
                 updateTimerDisplay();
                 if (timeRemainingSeconds <= 0) {
                     clearInterval(timerInterval);
-                    alert("Time is up! Submitting your test automatically.");
+                    alert("Time is up! Submitting test.");
                     submitExam();
                 }
             }, 1000);
@@ -1735,9 +1725,9 @@
             optsDiv.innerHTML = Object.entries(q.options).map(([key, val]) => {
                 const isSelected = examResponses[currentQuestionIdx] === key;
                 return `
-                    <label onclick="selectOption('${key}')" class="flex items-center gap-3 p-3.5 rounded-xl border-2 transition cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:border-slate-300'}">
-                        <input type="radio" name="opt" value="${key}" ${isSelected ? 'checked' : ''} class="w-4 h-4 text-blue-600">
-                        <span class="font-bold text-xs bg-slate-100 dark:bg-slate-700 w-6 h-6 rounded flex items-center justify-center">${key}</span>
+                    <label onclick="selectOption('${key}')" class="flex items-center gap-2.5 p-3 rounded-xl border-2 transition cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}">
+                        <input type="radio" name="opt" value="${key}" ${isSelected ? 'checked' : ''} class="w-3.5 h-3.5 text-blue-600">
+                        <span class="font-bold text-xs bg-slate-100 dark:bg-slate-700 w-5 h-5 rounded flex items-center justify-center">${key}</span>
                         <span class="text-xs sm:text-sm font-medium">${val}</span>
                     </label>
                 `;
@@ -1797,7 +1787,7 @@
 
                 const isCurrent = idx === currentQuestionIdx;
                 return `
-                    <button onclick="jumpToQuestion(${idx})" class="w-9 h-9 rounded-lg text-xs flex items-center justify-center transition ${btnStyle} ${isCurrent ? 'ring-2 ring-blue-600 ring-offset-2' : ''}">
+                    <button onclick="jumpToQuestion(${idx})" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs flex items-center justify-center transition ${btnStyle} ${isCurrent ? 'ring-2 ring-blue-600' : ''}">
                         ${idx + 1}
                     </button>
                 `;
@@ -1805,7 +1795,7 @@
         }
 
         function confirmSubmitExam() {
-            if (confirm("Are you sure you want to complete and submit this test?")) {
+            if (confirm("Submit test?")) {
                 submitExam();
             }
         }
@@ -1864,26 +1854,24 @@
             const myResults = appData.results.filter(r => r.studentId === appData.currentUser);
 
             if (myResults.length === 0) {
-                list.innerHTML = `<div class="bg-white dark:bg-slate-800 p-8 rounded-xl text-center border border-slate-200 dark:border-slate-700">
-                    <i class="fa-solid fa-chart-bar text-4xl text-slate-300 dark:text-slate-600 mb-2"></i>
-                    <p class="text-xs text-slate-400 font-medium">You haven't attempted any mock exams yet.</p>
+                list.innerHTML = `<div class="bg-white dark:bg-slate-800 p-6 rounded-xl text-center border border-slate-200 dark:border-slate-700">
+                    <p class="text-xs text-slate-400">No mock exams attempted yet.</p>
                 </div>`;
                 return;
             }
 
             list.innerHTML = myResults.map(res => `
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">${res.date}</span>
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${res.testTitle}</h4>
-                        <div class="flex gap-4 text-xs font-semibold text-slate-500 mt-2">
+                        <span class="text-[10px] font-bold text-blue-600 uppercase">${res.date}</span>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${res.testTitle}</h4>
+                        <div class="flex gap-3 text-xs font-semibold text-slate-500 mt-1">
                             <span>Score: <b class="text-blue-600">${res.score}/${res.totalMarks}</b></span>
                             <span>Accuracy: <b class="text-emerald-600">${res.accuracy}%</b></span>
-                            <span>Rank: <b class="text-amber-600">#${res.rank}</b></span>
                         </div>
                     </div>
-                    <button onclick="viewSolutionModal('${res.id}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg shadow transition">
-                        View Detailed Solutions
+                    <button onclick="viewSolutionModal('${res.id}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow">
+                        Solutions
                     </button>
                 </div>
             `).join('');
@@ -1904,8 +1892,8 @@
             document.getElementById('resUnattempted').innerText = res.unattemptedCount;
 
             const solContainer = document.getElementById('solutionsContainer');
-            if (!test) {
-                solContainer.innerHTML = '<p class="text-xs text-slate-400">Exam questions no longer exist.</p>';
+            if (!test || !test.questions) {
+                solContainer.innerHTML = '<p class="text-xs text-slate-400">Questions unavailable.</p>';
             } else {
                 solContainer.innerHTML = test.questions.map((q, idx) => {
                     const userChoice = res.responses ? res.responses[idx] : null;
@@ -1913,22 +1901,17 @@
                     const isUnattempted = !userChoice;
 
                     return `
-                        <div class="p-4 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20' : (isUnattempted ? 'border-slate-200 bg-slate-50 dark:bg-slate-800/50' : 'border-red-200 bg-red-50/50 dark:bg-red-950/20')} text-xs space-y-2">
+                        <div class="p-3 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20' : (isUnattempted ? 'border-slate-200 bg-slate-50 dark:bg-slate-800/50' : 'border-red-200 bg-red-50/50 dark:bg-red-950/20')} text-xs space-y-1.5">
                             <div class="font-bold text-slate-800 dark:text-slate-100">
                                 Q${idx + 1}: ${q.text}
                             </div>
-                            <div class="grid grid-cols-2 gap-2 text-[11px] font-medium">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] font-medium">
                                 ${Object.entries(q.options).map(([k, v]) => `
-                                    <div class="p-2 rounded ${k === q.correct ? 'bg-emerald-200 dark:bg-emerald-900/60 font-bold text-emerald-900 dark:text-emerald-100' : (k === userChoice ? 'bg-red-200 dark:bg-red-900/60 font-bold text-red-900 dark:text-red-100' : 'bg-white dark:bg-slate-700')}">
-                                        ${k}.${v} ${k === q.correct ? '<i class="fa-solid fa-circle-check text-emerald-600 ml-1"></i>' : ''} ${k === userChoice && k !== q.correct ? '<i class="fa-solid fa-circle-xmark text-red-600 ml-1"></i>' : ''}
+                                    <div class="p-1.5 rounded ${k === q.correct ? 'bg-emerald-200 font-bold text-emerald-900' : (k === userChoice ? 'bg-red-200 font-bold text-red-900' : 'bg-white dark:bg-slate-700')}">
+                                        ${k}.${v}
                                     </div>
                                 `).join('')}
                             </div>
-                            ${q.explanation ? `
-                                <div class="p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 text-[11px]">
-                                    <b><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Explanation:</b> ${q.explanation}
-                                </div>
-                            ` : ''}
                         </div>
                     `;
                 }).join('');
@@ -1942,24 +1925,24 @@
         function renderAdminTests() {
             const list = document.getElementById('adminMockList');
             list.innerHTML = appData.tests.map(test => `
-                <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">${test.category}</span>
-                            <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">${test.subtype}</span>
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="bg-blue-100 text-blue-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">${test.category}</span>
+                            <span class="bg-slate-100 text-slate-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">${test.subtype}</span>
                         </div>
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${test.title}</h4>
-                        <p class="text-xs text-slate-400 mt-1">${test.questions.length} Questions | ${test.timeMinutes} Minutes Limit</p>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${test.title}</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">${test.questions ? test.questions.length : 0} Questions | ${test.timeMinutes} Mins</p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="openUploadPdfModal('${test.id}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1">
-                            <i class="fa-solid fa-file-pdf"></i> Auto PDF Questions
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="openUploadPdfModal('${test.id}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg">
+                            <i class="fa-solid fa-file-pdf"></i> Import PDF
                         </button>
-                        <button onclick="openAddQuestionModal('${test.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1">
+                        <button onclick="openAddQuestionModal('${test.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg">
                             <i class="fa-solid fa-plus"></i> Add Question
                         </button>
-                        <button onclick="deleteTest('${test.id}')" class="bg-red-50 text-red-600 hover:bg-red-100 font-bold text-xs px-3 py-2 rounded-lg border border-red-200 transition">
-                            Delete Test
+                        <button onclick="deleteTest('${test.id}')" class="bg-red-50 text-red-600 font-bold text-[11px] px-2.5 py-1.5 rounded-lg border border-red-200">
+                            Delete
                         </button>
                     </div>
                 </div>
@@ -1967,7 +1950,7 @@
         }
 
         function deleteTest(testId) {
-            if (confirm("Are you sure you want to delete this test?")) {
+            if (confirm("Delete this test?")) {
                 appData.tests = appData.tests.filter(t => t.id !== testId);
                 saveData();
                 populateCategoryFilters();
@@ -1989,6 +1972,7 @@
             const test = appData.tests.find(t => t.id === testId);
 
             if (!test) return;
+            if (!test.questions) test.questions = [];
 
             const q = {
                 id: 'q_' + Date.now(),
@@ -2008,7 +1992,6 @@
             renderStudentMocks();
             renderAdminTests();
             closeAddQuestionModal();
-            alert("Question added successfully!");
         }
 
         function openUploadPdfModal(testId) {
@@ -2044,26 +2027,26 @@
                 const extractedQuestions = parseQuestionsFromText(fullText);
 
                 if (extractedQuestions.length === 0) {
-                    alert("Could not automatically parse structured questions. Adding a sample question template.");
                     extractedQuestions.push({
                         id: 'q_pdf_' + Date.now(),
-                        text: 'Sample Extracted PDF Question - Which city is the capital of Odisha?',
+                        text: 'Sample PDF Question - Capital of Odisha?',
                         options: { A: 'Cuttack', B: 'Bhubaneswar', C: 'Puri', D: 'Berhampur' },
                         correct: 'B',
-                        explanation: 'Bhubaneswar is the official capital city of Odisha.'
+                        explanation: 'Bhubaneswar is the capital of Odisha.'
                     });
                 }
 
                 const test = appData.tests.find(t => t.id === testId);
                 if (test) {
+                    if (!test.questions) test.questions = [];
                     test.questions.push(...extractedQuestions);
                     saveData();
                     renderStudentMocks();
                     renderAdminTests();
-                    alert(`Successfully imported ${extractedQuestions.length} questions from PDF!`);
+                    alert(`Imported ${extractedQuestions.length} questions from PDF!`);
                 }
             } catch (err) {
-                alert("Error processing PDF file. Please ensure it is a text-readable PDF.");
+                alert("Error reading PDF file.");
             } finally {
                 progress.classList.add('hidden');
                 closeUploadPdfModal();
@@ -2078,19 +2061,14 @@
                 if (idx === 0 || block.trim().length < 10) return;
 
                 const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
-                const questionText = lines[0] || "Imported Question Text";
+                const questionText = lines[0] || "Imported Question";
 
                 questions.push({
                     id: 'q_pdf_' + Date.now() + '_' + idx,
                     text: questionText,
-                    options: {
-                        A: 'Option A',
-                        B: 'Option B',
-                        C: 'Option C',
-                        D: 'Option D'
-                    },
+                    options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' },
                     correct: 'A',
-                    explanation: 'Extracted directly from question paper PDF.'
+                    explanation: 'Extracted from PDF.'
                 });
             });
 
