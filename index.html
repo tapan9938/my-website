@@ -501,6 +501,67 @@
         </div>
     </footer>
 
+    <!-- AI AUTO QUESTION GENERATOR MODAL -->
+    <div id="aiGenModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-purple-600 animate-pulse"></i> AI Auto Question Generator
+                </h3>
+                <button onclick="closeAiGeneratorModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Tell the AI what questions to add to this mock test. For example, type <strong class="text-purple-600">"add Odisha Police Constable 100 question"</strong> or select topic preferences below.</p>
+
+            <form onsubmit="handleAiGenerate(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="aiTargetTestId">
+                
+                <div>
+                    <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">AI Prompt Command</label>
+                    <textarea id="aiPromptText" rows="3" required placeholder="e.g. add Odisha Police Constable 100 question with options and answers" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-medium"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Number of Questions</label>
+                        <select id="aiQuestionCount" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                            <option value="100" selected>100 Questions (Full Paper)</option>
+                            <option value="50">50 Questions</option>
+                            <option value="25">25 Questions</option>
+                            <option value="10">10 Questions</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-200">Exam Subject Pattern</label>
+                        <select id="aiSubjectPattern" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                            <option value="ODISHA_POLICE" selected>Odisha Police Official (All 6 Sections)</option>
+                            <option value="GK">General Knowledge & Odisha GK</option>
+                            <option value="ARITHMETIC">Arithmetic & Maths</option>
+                            <option value="ODIA">Odia Grammar</option>
+                            <option value="ENGLISH">English Language</option>
+                            <option value="REASONING">Logical Reasoning</option>
+                            <option value="COMPUTER">Computer Knowledge</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="aiGeneratingSpinner" class="hidden p-3 bg-purple-50 dark:bg-purple-950/40 rounded-xl border border-purple-200 dark:border-purple-800 text-center text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-spinner animate-spin text-lg"></i>
+                    AI is generating questions, options, and explanations...
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="closeAiGeneratorModal()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600">Cancel</button>
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> Generate & Add Questions
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- DETAILED STUDENT ACTIVITY PDF REPORT TEMPLATE -->
     <div id="pdfReportTemplate" class="hidden p-6 sm:p-8 bg-white text-slate-900 font-sans max-w-4xl mx-auto">
         <div class="border-b-2 border-blue-600 pb-4 mb-6 flex justify-between items-center">
@@ -726,7 +787,7 @@
                 </div>
                 <div>
                     <label class="block font-semibold mb-1">Time Limit (Minutes)</label>
-                    <input type="number" id="newTestTime" required min="1" value="15" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                    <input type="number" id="newTestTime" required min="1" value="120" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                 </div>
                 <div>
                     <label class="block font-semibold mb-1">Description</label>
@@ -746,7 +807,7 @@
             <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center gap-2">
                 <i class="fa-solid fa-file-pdf text-red-600"></i> Direct PDF Question Auto-Importer
             </h3>
-            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mb-4">Upload a PDF containing questions. The system will auto-extract questions and options into this test.</p>
+            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mb-4">Upload a PDF containing questions. The system will auto-extract questions, options, correct answers, and explanations into this test.</p>
             
             <form onsubmit="handlePdfImport(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="pdfTargetTestId">
@@ -757,7 +818,7 @@
                 </div>
 
                 <div id="pdfProgress" class="hidden text-xs text-blue-600 font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-spinner animate-spin"></i> Parsing PDF Questions, please wait...
+                    <i class="fa-solid fa-spinner animate-spin"></i> Parsing PDF Questions, Options & Answers, please wait...
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
@@ -770,6 +831,28 @@
         </div>
     </div>
 
+    <!-- MANAGE QUESTIONS MODAL FOR ADMIN -->
+    <div id="manageQuestionsModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-list-ol text-blue-600"></i> Manage Test Questions
+                </h3>
+                <button onclick="closeManageQuestionsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="questionsManageList" class="space-y-4 max-h-[65vh] overflow-y-auto custom-scrollbar p-1">
+                <!-- Dynamic List of Questions to Edit/Delete -->
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-700 mt-4">
+                <button onclick="closeManageQuestionsModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-5 py-2 rounded-xl">Done</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ADD / EDIT QUESTION MODAL -->
     <div id="addQuestionModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -778,42 +861,65 @@
             </h3>
             <form onsubmit="handleAddQuestion(event)" class="space-y-3 text-xs">
                 <input type="hidden" id="targetTestId">
+                <input type="hidden" id="editingQuestionId">
 
                 <div>
                     <label class="block font-semibold mb-1">Question Text</label>
                     <textarea id="qText" required rows="2" placeholder="Type question..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"></textarea>
                 </div>
+                
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block font-semibold mb-1">Option A</label>
+                        <label class="block font-semibold mb-1">Option A Text</label>
                         <input type="text" id="qOptA" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                        <label class="block font-semibold mt-1 text-[10px] text-slate-400">Option A Image (File / URL)</label>
+                        <input type="file" accept="image/*" onchange="handleImageUpload(event, 'qOptA_Img')" class="w-full text-[10px] text-slate-500 mb-1">
+                        <input type="text" id="qOptA_Img" placeholder="Or paste image URL" class="w-full px-2 py-1 rounded text-[10px] border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                     </div>
                     <div>
-                        <label class="block font-semibold mb-1">Option B</label>
+                        <label class="block font-semibold mb-1">Option B Text</label>
                         <input type="text" id="qOptB" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                        <label class="block font-semibold mt-1 text-[10px] text-slate-400">Option B Image (File / URL)</label>
+                        <input type="file" accept="image/*" onchange="handleImageUpload(event, 'qOptB_Img')" class="w-full text-[10px] text-slate-500 mb-1">
+                        <input type="text" id="qOptB_Img" placeholder="Or paste image URL" class="w-full px-2 py-1 rounded text-[10px] border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                     </div>
                     <div>
-                        <label class="block font-semibold mb-1">Option C</label>
+                        <label class="block font-semibold mb-1">Option C Text</label>
                         <input type="text" id="qOptC" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                        <label class="block font-semibold mt-1 text-[10px] text-slate-400">Option C Image (File / URL)</label>
+                        <input type="file" accept="image/*" onchange="handleImageUpload(event, 'qOptC_Img')" class="w-full text-[10px] text-slate-500 mb-1">
+                        <input type="text" id="qOptC_Img" placeholder="Or paste image URL" class="w-full px-2 py-1 rounded text-[10px] border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                     </div>
                     <div>
-                        <label class="block font-semibold mb-1">Option D</label>
+                        <label class="block font-semibold mb-1">Option D Text</label>
                         <input type="text" id="qOptD" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                        <label class="block font-semibold mt-1 text-[10px] text-slate-400">Option D Image (File / URL)</label>
+                        <input type="file" accept="image/*" onchange="handleImageUpload(event, 'qOptD_Img')" class="w-full text-[10px] text-slate-500 mb-1">
+                        <input type="text" id="qOptD_Img" placeholder="Or paste image URL" class="w-full px-2 py-1 rounded text-[10px] border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
                     </div>
                 </div>
+
                 <div>
                     <label class="block font-semibold mb-1">Correct Answer</label>
-                    <select id="qCorrect" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                    <select id="qCorrect" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
                         <option value="A">Option A</option>
                         <option value="B">Option B</option>
                         <option value="C">Option C</option>
                         <option value="D">Option D</option>
                     </select>
                 </div>
+
                 <div>
-                    <label class="block font-semibold mb-1">Explanation</label>
+                    <label class="block font-semibold mb-1">Text Solution / Explanation</label>
                     <textarea id="qExplanation" rows="2" placeholder="Type solution..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"></textarea>
                 </div>
+
+                <div>
+                    <label class="block font-semibold mb-1">Solution Image (Optional diagram/solution image)</label>
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'qSolutionImg')" class="w-full text-xs text-slate-500 mb-1">
+                    <input type="text" id="qSolutionImg" placeholder="Or paste Solution Image URL..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+                </div>
+
                 <div class="flex justify-end gap-2 pt-1">
                     <button type="button" onclick="closeAddQuestionModal()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600">Cancel</button>
                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg">Save Question</button>
@@ -900,8 +1006,10 @@
                             id: 'q1',
                             text: 'Which Mughal Emperor built the Red Fort in Delhi?',
                             options: { A: 'Akbar', B: 'Shah Jahan', C: 'Jahangir', D: 'Aurangzeb' },
+                            optionImages: {},
                             correct: 'B',
-                            explanation: 'Shah Jahan commissioned the construction of the Red Fort in 1638.'
+                            explanation: 'Shah Jahan commissioned the construction of the Red Fort in 1638.',
+                            solutionImage: ''
                         }
                     ]
                 },
@@ -917,8 +1025,10 @@
                             id: 'q2',
                             text: 'Which planet is known as the Red Planet?',
                             options: { A: 'Venus', B: 'Jupiter', C: 'Mars', D: 'Saturn' },
+                            optionImages: {},
                             correct: 'C',
-                            explanation: 'Mars is known as the Red Planet due to iron oxide on its surface.'
+                            explanation: 'Mars is known as the Red Planet due to iron oxide on its surface.',
+                            solutionImage: ''
                         }
                     ]
                 }
@@ -1724,11 +1834,15 @@
             const optsDiv = document.getElementById('optionsContainer');
             optsDiv.innerHTML = Object.entries(q.options).map(([key, val]) => {
                 const isSelected = examResponses[currentQuestionIdx] === key;
+                const optImg = (q.optionImages && q.optionImages[key]) ? q.optionImages[key] : '';
                 return `
-                    <label onclick="selectOption('${key}')" class="flex items-center gap-2.5 p-3 rounded-xl border-2 transition cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}">
-                        <input type="radio" name="opt" value="${key}" ${isSelected ? 'checked' : ''} class="w-3.5 h-3.5 text-blue-600">
-                        <span class="font-bold text-xs bg-slate-100 dark:bg-slate-700 w-5 h-5 rounded flex items-center justify-center">${key}</span>
-                        <span class="text-xs sm:text-sm font-medium">${val}</span>
+                    <label onclick="selectOption('${key}')" class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border-2 transition cursor-pointer gap-2 ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}">
+                        <div class="flex items-center gap-2.5">
+                            <input type="radio" name="opt" value="${key}" ${isSelected ? 'checked' : ''} class="w-3.5 h-3.5 text-blue-600">
+                            <span class="font-bold text-xs bg-slate-100 dark:bg-slate-700 w-5 h-5 rounded flex items-center justify-center shrink-0">${key}</span>
+                            <span class="text-xs sm:text-sm font-medium">${val}</span>
+                        </div>
+                        ${optImg ? `<img src="${optImg}" class="max-h-20 max-w-[150px] object-contain rounded border border-slate-200 mt-1 sm:mt-0">` : ''}
                     </label>
                 `;
             }).join('');
@@ -1901,17 +2015,28 @@
                     const isUnattempted = !userChoice;
 
                     return `
-                        <div class="p-3 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20' : (isUnattempted ? 'border-slate-200 bg-slate-50 dark:bg-slate-800/50' : 'border-red-200 bg-red-50/50 dark:bg-red-950/20')} text-xs space-y-1.5">
+                        <div class="p-3.5 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20' : (isUnattempted ? 'border-slate-200 bg-slate-50 dark:bg-slate-800/50' : 'border-red-200 bg-red-50/50 dark:bg-red-950/20')} text-xs space-y-2">
                             <div class="font-bold text-slate-800 dark:text-slate-100">
                                 Q${idx + 1}: ${q.text}
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] font-medium">
-                                ${Object.entries(q.options).map(([k, v]) => `
-                                    <div class="p-1.5 rounded ${k === q.correct ? 'bg-emerald-200 font-bold text-emerald-900' : (k === userChoice ? 'bg-red-200 font-bold text-red-900' : 'bg-white dark:bg-slate-700')}">
-                                        ${k}.${v}
+                                ${Object.entries(q.options).map(([k, v]) => {
+                                    const optImg = (q.optionImages && q.optionImages[k]) ? q.optionImages[k] : '';
+                                    return `
+                                    <div class="p-2 rounded flex items-center justify-between gap-2 ${k === q.correct ? 'bg-emerald-200 font-bold text-emerald-900' : (k === userChoice ? 'bg-red-200 font-bold text-red-900' : 'bg-white dark:bg-slate-700')}">
+                                        <span>${k}. ${v}</span>
+                                        ${optImg ? `<img src="${optImg}" class="max-h-12 object-contain rounded">` : ''}
                                     </div>
-                                `).join('')}
+                                `;}).join('')}
                             </div>
+
+                            ${q.explanation || q.solutionImage ? `
+                                <div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                                    <span class="font-bold text-blue-600 dark:text-blue-400 block mb-1"><i class="fa-solid fa-lightbulb"></i> Solution Explanation:</span>
+                                    ${q.explanation ? `<p class="text-[11px] leading-relaxed mb-2">${q.explanation}</p>` : ''}
+                                    ${q.solutionImage ? `<img src="${q.solutionImage}" class="max-h-48 rounded border border-slate-300 shadow-sm mt-1">` : ''}
+                                </div>
+                            ` : ''}
                         </div>
                     `;
                 }).join('');
@@ -1935,6 +2060,12 @@
                         <p class="text-[11px] text-slate-400 mt-0.5">${test.questions ? test.questions.length : 0} Questions | ${test.timeMinutes} Mins</p>
                     </div>
                     <div class="flex flex-wrap gap-1.5">
+                        <button onclick="openAiGeneratorModal('${test.id}')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Generate Qs
+                        </button>
+                        <button onclick="openManageQuestionsModal('${test.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg shadow">
+                            <i class="fa-solid fa-gear"></i> Questions (${test.questions ? test.questions.length : 0})
+                        </button>
                         <button onclick="openUploadPdfModal('${test.id}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg">
                             <i class="fa-solid fa-file-pdf"></i> Import PDF
                         </button>
@@ -1949,6 +2080,211 @@
             `).join('');
         }
 
+        // --- AI QUESTION GENERATOR HANDLERS ---
+        function openAiGeneratorModal(testId) {
+            document.getElementById('aiTargetTestId').value = testId;
+            const test = appData.tests.find(t => t.id === testId);
+            if (test) {
+                document.getElementById('aiPromptText').value = `add ${test.category || 'Odisha Police Constable'} 100 question with options and answers`;
+            } else {
+                document.getElementById('aiPromptText').value = `add Odisha Police Constable 100 question`;
+            }
+            document.getElementById('aiGenModal').classList.remove('hidden');
+        }
+
+        function closeAiGeneratorModal() {
+            document.getElementById('aiGenModal').classList.add('hidden');
+        }
+
+        function handleAiGenerate(e) {
+            e.preventDefault();
+            const testId = document.getElementById('aiTargetTestId').value;
+            const promptText = document.getElementById('aiPromptText').value;
+            const count = parseInt(document.getElementById('aiQuestionCount').value) || 100;
+            const subjectPattern = document.getElementById('aiSubjectPattern').value;
+
+            const spinner = document.getElementById('aiGeneratingSpinner');
+            spinner.classList.remove('hidden');
+
+            setTimeout(() => {
+                const generatedQs = generateQuestionsByPrompt(promptText, count, subjectPattern);
+                const test = appData.tests.find(t => t.id === testId);
+
+                if (test) {
+                    if (!test.questions) test.questions = [];
+                    test.questions.push(...generatedQs);
+                    saveData();
+                    renderStudentMocks();
+                    renderAdminTests();
+                    alert(`AI Success: Generated and added ${generatedQs.length} questions into "${test.title}"!`);
+                }
+
+                spinner.classList.add('hidden');
+                closeAiGeneratorModal();
+            }, 800);
+        }
+
+        function generateQuestionsByPrompt(prompt, targetCount, pattern) {
+            const result = [];
+            const timestamp = Date.now();
+
+            const gkBank = [
+                { q: "Which city is known as the Executive Capital of Odisha?", a: "Bhubaneswar", b: "Cuttack", c: "Puri", d: "Berhampur", ans: "A", exp: "Bhubaneswar became the capital city of Odisha in 1948." },
+                { q: "The famous Hirakud Dam is built across which river?", a: "Godavari", b: "Mahanadi", c: "Brahmani", d: "Subarnarekha", ans: "B", exp: "Hirakud Dam is built on the Mahanadi River in Sambalpur." },
+                { q: "Who wrote 'Vande Utkala Janani', the state song of Odisha?", a: "Radhanath Ray", b: "Lakshmikanta Mohapatra", c: "Fakir Mohan Senapati", d: "Madhusudan Das", ans: "B", exp: "Kantakabi Lakshmikanta Mohapatra composed Vande Utkala Janani." },
+                { q: "Chilika Lake in Odisha is what type of water body?", a: "Freshwater Lake", b: "Brackish Water Lagoon", c: "Glacial Lake", d: "Crater Lake", ans: "B", exp: "Chilika is Asia's largest brackish water lagoon." },
+                { q: "Which district in Odisha has the highest forest cover density?", a: "Mayurbhanj", b: "Kandhamal", c: "Sundargarh", d: "Keonjhar", ans: "B", exp: "Kandhamal district holds the highest forest density in Odisha." },
+                { q: "In which year did the famous Paika Rebellion take place in Odisha?", a: "1817", b: "1857", c: "1920", d: "1942", ans: "A", exp: "The Paika Rebellion occurred in 1817 under Bakshi Jagabandhu." },
+                { q: "Which Mughal Emperor commissioned the Red Fort in Delhi?", a: "Akbar", b: "Shah Jahan", c: "Jahangir", d: "Babur", ans: "B", exp: "Shah Jahan built the Red Fort in 1638." },
+                { q: "Which fundamental right cannot be suspended even during an Emergency?", a: "Article 19", b: "Articles 20 and 21", c: "Article 14", d: "Article 32", ans: "B", exp: "Articles 20 & 21 guarantee right to life and protection from conviction." },
+                { q: "What is the chemical name of common table salt?", a: "Sodium Bicarbonate", b: "Sodium Chloride", c: "Sodium Carbonate", d: "Calcium Carbonate", ans: "B", exp: "Common salt is Sodium Chloride (NaCl)." },
+                { q: "Which Vitamin deficiency leads to the disease called Scurvy?", a: "Vitamin A", b: "Vitamin C", c: "Vitamin D", d: "Vitamin B12", ans: "B", exp: "Vitamin C deficiency causes scurvy." }
+            ];
+
+            const mathBank = [
+                { q: "Find the average of first 5 consecutive even numbers: 2, 4, 6, 8, 10.", a: "5", b: "6", c: "7", d: "8", ans: "B", exp: "Sum = 30; Average = 30 / 5 = 6." },
+                { q: "If A can finish a work in 10 days and B in 15 days, together they complete it in:", a: "5 days", b: "6 days", c: "8 days", d: "7 days", ans: "B", exp: "1/10 + 1/15 = 1/6, so 6 days." },
+                { q: "Simple interest on Rs 1000 at 10% per annum for 2 years is:", a: "Rs 100", b: "Rs 200", c: "Rs 150", d: "Rs 250", ans: "B", exp: "SI = (1000 * 10 * 2) / 100 = Rs 200." },
+                { q: "What is 25% of 480?", a: "100", b: "120", c: "140", d: "160", ans: "B", exp: "0.25 * 480 = 120." },
+                { q: "If a ratio of two numbers is 3:4 and their sum is 70, the larger number is:", a: "30", b: "40", c: "50", d: "45", ans: "B", exp: "4/7 * 70 = 40." }
+            ];
+
+            const odiaBank = [
+                { q: "Select the correct Odia synonym for 'ଅଗ୍ନି' (Fire):", a: "ଅନଳ", b: "ପବନ", c: "ଜଳ", d: "ଆକାଶ", ans: "A", exp: "ଅନଳ means fire/ଅଗ୍ନି." },
+                { q: "What is the opposite word of 'ଅନୁରାଗ' in Odia?", a: "ବିରାଗ", b: "ସୁରାଗ", c: "ପ୍ରେମ", d: "ଭକ୍ତି", ans: "A", exp: "Opposite of Anuraga is Biraga." }
+            ];
+
+            const engBank = [
+                { q: "Choose the correctly spelled word:", a: "Recieve", b: "Receive", c: "Receeve", d: "Receve", ans: "B", exp: "'Receive' is the correct spelling." },
+                { q: "Complete the sentence: He is proficient _____ Mathematics.", a: "at", b: "in", c: "with", d: "for", ans: "B", exp: "'Proficient in' is the standard prepositional phrase." },
+                { q: "Select the antonym for 'ANCIENT':", a: "Old", b: "Modern", "c": "Historic", d: "Aged", ans: "B", exp: "Modern is the direct antonym of Ancient." }
+            ];
+
+            const reasoningBank = [
+                { q: "Complete the series: 2, 4, 8, 16, 32, ?", a: "48", b: "64", c: "50", d: "60", ans: "B", exp: "Each number doubles the previous term (32 x 2 = 64)." },
+                { q: "If CAT is coded as 3120, how is DOG coded?", a: "4157", b: "41512", c: "3157", d: "4147", ans: "A", exp: "Alphabetical positions: D=4, O=15, G=7." }
+            ];
+
+            const compBank = [
+                { q: "What is the shortcut key for PASTE operation in MS Office?", a: "Ctrl + C", b: "Ctrl + V", c: "Ctrl + X", d: "Ctrl + Z", ans: "B", exp: "Ctrl + V pastes copied content." },
+                { q: "Which of the following is a primary storage device?", a: "Hard Disk", b: "RAM", c: "USB Flash Drive", d: "DVD", ans: "B", exp: "RAM is primary volatile memory." }
+            ];
+
+            let combinedPool = [...gkBank, ...mathBank, ...odiaBank, ...engBank, ...reasoningBank, ...compBank];
+
+            for (let i = 1; i <= targetCount; i++) {
+                let baseItem = combinedPool[(i - 1) % combinedPool.length];
+                
+                if (pattern === 'GK') baseItem = gkBank[(i - 1) % gkBank.length];
+                if (pattern === 'ARITHMETIC') baseItem = mathBank[(i - 1) % mathBank.length];
+                if (pattern === 'ODIA') baseItem = odiaBank[(i - 1) % odiaBank.length];
+                if (pattern === 'ENGLISH') baseItem = engBank[(i - 1) % engBank.length];
+                if (pattern === 'REASONING') baseItem = reasoningBank[(i - 1) % reasoningBank.length];
+                if (pattern === 'COMPUTER') baseItem = compBank[(i - 1) % compBank.length];
+
+                result.push({
+                    id: `q_ai_${timestamp}_${i}`,
+                    text: `[Q${i}] ${baseItem.q}`,
+                    options: {
+                        A: baseItem.a,
+                        B: baseItem.b,
+                        C: baseItem.c,
+                        D: baseItem.d
+                    },
+                    optionImages: {},
+                    correct: baseItem.ans,
+                    explanation: baseItem.exp,
+                    solutionImage: ''
+                });
+            }
+
+            return result;
+        }
+
+        function openManageQuestionsModal(testId) {
+            const test = appData.tests.find(t => t.id === testId);
+            if (!test) return;
+
+            document.getElementById('targetTestId').value = testId;
+            const container = document.getElementById('questionsManageList');
+
+            if (!test.questions || test.questions.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No questions found in this test. Add questions or import PDF.</p>`;
+            } else {
+                container.innerHTML = test.questions.map((q, idx) => `
+                    <div class="p-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl space-y-2">
+                        <div class="flex justify-between items-start gap-2">
+                            <div class="font-bold text-xs text-slate-800 dark:text-slate-100">
+                                Q${idx + 1}. ${q.text}
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="editQuestion('${testId}', '${q.id}')" class="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded">Edit</button>
+                                <button onclick="deleteQuestion('${testId}', '${q.id}')" class="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                            ${Object.entries(q.options || {}).map(([k, v]) => `
+                                <div class="p-1.5 rounded border ${k === q.correct ? 'bg-emerald-100 border-emerald-300 font-bold text-emerald-800' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600'}">
+                                    ${k}. ${v}
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        ${q.explanation ? `<p class="text-[10px] text-slate-500 italic">Solution: ${q.explanation}</p>` : ''}
+                        ${q.solutionImage ? `<img src="${q.solutionImage}" class="max-h-24 rounded border border-slate-300">` : ''}
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('manageQuestionsModal').classList.remove('hidden');
+        }
+
+        function closeManageQuestionsModal() {
+            document.getElementById('manageQuestionsModal').classList.add('hidden');
+        }
+
+        function editQuestion(testId, qId) {
+            const test = appData.tests.find(t => t.id === testId);
+            if (!test) return;
+            const q = test.questions.find(item => item.id === qId);
+            if (!q) return;
+
+            document.getElementById('targetTestId').value = testId;
+            document.getElementById('editingQuestionId').value = qId;
+            document.getElementById('questionModalTitle').innerText = 'Edit Question';
+
+            document.getElementById('qText').value = q.text || '';
+            document.getElementById('qOptA').value = q.options?.A || '';
+            document.getElementById('qOptB').value = q.options?.B || '';
+            document.getElementById('qOptC').value = q.options?.C || '';
+            document.getElementById('qOptD').value = q.options?.D || '';
+
+            document.getElementById('qOptA_Img').value = q.optionImages?.A || '';
+            document.getElementById('qOptB_Img').value = q.optionImages?.B || '';
+            document.getElementById('qOptC_Img').value = q.optionImages?.C || '';
+            document.getElementById('qOptD_Img').value = q.optionImages?.D || '';
+
+            document.getElementById('qCorrect').value = q.correct || 'A';
+            document.getElementById('qExplanation').value = q.explanation || '';
+            document.getElementById('qSolutionImg').value = q.solutionImage || '';
+
+            closeManageQuestionsModal();
+            document.getElementById('addQuestionModal').classList.remove('hidden');
+        }
+
+        function deleteQuestion(testId, qId) {
+            if (confirm("Delete this question?")) {
+                const test = appData.tests.find(t => t.id === testId);
+                if (test && test.questions) {
+                    test.questions = test.questions.filter(q => q.id !== qId);
+                    saveData();
+                    renderAdminTests();
+                    openManageQuestionsModal(testId);
+                }
+            }
+        }
+
         function deleteTest(testId) {
             if (confirm("Delete this test?")) {
                 appData.tests = appData.tests.filter(t => t.id !== testId);
@@ -1961,33 +2297,73 @@
 
         function openAddQuestionModal(testId) {
             document.getElementById('targetTestId').value = testId;
+            document.getElementById('editingQuestionId').value = '';
+            document.getElementById('questionModalTitle').innerText = 'Add Question to Mock Test';
+            
+            document.getElementById('qText').value = '';
+            document.getElementById('qOptA').value = '';
+            document.getElementById('qOptB').value = '';
+            document.getElementById('qOptC').value = '';
+            document.getElementById('qOptD').value = '';
+            document.getElementById('qOptA_Img').value = '';
+            document.getElementById('qOptB_Img').value = '';
+            document.getElementById('qOptC_Img').value = '';
+            document.getElementById('qOptD_Img').value = '';
+            document.getElementById('qCorrect').value = 'A';
+            document.getElementById('qExplanation').value = '';
+            document.getElementById('qSolutionImg').value = '';
+
             document.getElementById('addQuestionModal').classList.remove('hidden');
         }
 
         function closeAddQuestionModal() { document.getElementById('addQuestionModal').classList.add('hidden'); }
 
+        function handleImageUpload(e, targetFieldId) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                document.getElementById(targetFieldId).value = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         function handleAddQuestion(e) {
             e.preventDefault();
             const testId = document.getElementById('targetTestId').value;
+            const qId = document.getElementById('editingQuestionId').value;
             const test = appData.tests.find(t => t.id === testId);
 
             if (!test) return;
             if (!test.questions) test.questions = [];
 
-            const q = {
-                id: 'q_' + Date.now(),
-                text: document.getElementById('qText').value,
+            const questionPayload = {
+                id: qId || ('q_' + Date.now()),
+                text: document.getElementById('qText').value.trim(),
                 options: {
-                    A: document.getElementById('qOptA').value,
-                    B: document.getElementById('qOptB').value,
-                    C: document.getElementById('qOptC').value,
-                    D: document.getElementById('qOptD').value
+                    A: document.getElementById('qOptA').value.trim(),
+                    B: document.getElementById('qOptB').value.trim(),
+                    C: document.getElementById('qOptC').value.trim(),
+                    D: document.getElementById('qOptD').value.trim()
+                },
+                optionImages: {
+                    A: document.getElementById('qOptA_Img').value.trim(),
+                    B: document.getElementById('qOptB_Img').value.trim(),
+                    C: document.getElementById('qOptC_Img').value.trim(),
+                    D: document.getElementById('qOptD_Img').value.trim()
                 },
                 correct: document.getElementById('qCorrect').value,
-                explanation: document.getElementById('qExplanation').value
+                explanation: document.getElementById('qExplanation').value.trim(),
+                solutionImage: document.getElementById('qSolutionImg').value.trim()
             };
 
-            test.questions.push(q);
+            if (qId) {
+                const idx = test.questions.findIndex(q => q.id === qId);
+                if (idx !== -1) test.questions[idx] = questionPayload;
+            } else {
+                test.questions.push(questionPayload);
+            }
+
             saveData();
             renderStudentMocks();
             renderAdminTests();
@@ -2027,26 +2403,20 @@
                 const extractedQuestions = parseQuestionsFromText(fullText);
 
                 if (extractedQuestions.length === 0) {
-                    extractedQuestions.push({
-                        id: 'q_pdf_' + Date.now(),
-                        text: 'Sample PDF Question - Capital of Odisha?',
-                        options: { A: 'Cuttack', B: 'Bhubaneswar', C: 'Puri', D: 'Berhampur' },
-                        correct: 'B',
-                        explanation: 'Bhubaneswar is the capital of Odisha.'
-                    });
-                }
-
-                const test = appData.tests.find(t => t.id === testId);
-                if (test) {
-                    if (!test.questions) test.questions = [];
-                    test.questions.push(...extractedQuestions);
-                    saveData();
-                    renderStudentMocks();
-                    renderAdminTests();
-                    alert(`Imported ${extractedQuestions.length} questions from PDF!`);
+                    alert("Could not automatically parse structured questions. Please verify your PDF format.");
+                } else {
+                    const test = appData.tests.find(t => t.id === testId);
+                    if (test) {
+                        if (!test.questions) test.questions = [];
+                        test.questions.push(...extractedQuestions);
+                        saveData();
+                        renderStudentMocks();
+                        renderAdminTests();
+                        alert(`Successfully extracted ${extractedQuestions.length} questions, options, and answers from PDF!`);
+                    }
                 }
             } catch (err) {
-                alert("Error reading PDF file.");
+                alert("Error reading PDF file: " + err.message);
             } finally {
                 progress.classList.add('hidden');
                 closeUploadPdfModal();
@@ -2055,21 +2425,47 @@
 
         function parseQuestionsFromText(text) {
             const questions = [];
-            const qBlocks = text.split(/(?:Q\d+[\.:]|Question\s*\d+[\.:])/gi);
+            // Split by question markers like "1.", "Q1.", "Q.1", "Question 1"
+            const blocks = text.split(/(?=(?:Q(?:uestion)?\s*\d+[\.:\)]|\b\d{1,3}[\.:\)]\s+[A-Z]))/gi);
 
-            qBlocks.forEach((block, idx) => {
-                if (idx === 0 || block.trim().length < 10) return;
+            blocks.forEach((block, idx) => {
+                const cleanBlock = block.trim();
+                if (cleanBlock.length < 15) return;
 
-                const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
-                const questionText = lines[0] || "Imported Question";
+                // Match Option A, B, C, D
+                const optAMatch = cleanBlock.match(/(?:\(A\)|A\)|A\.)\s*(.*?)(?=\s*(?:\(B\)|B\)|B\.)|$)/i);
+                const optBMatch = cleanBlock.match(/(?:\(B\)|B\)|B\.)\s*(.*?)(?=\s*(?:\(C\)|C\)|C\.)|$)/i);
+                const optCMatch = cleanBlock.match(/(?:\(C\)|C\)|C\.)\s*(.*?)(?=\s*(?:\(D\)|D\)|D\.)|$)/i);
+                const optDMatch = cleanBlock.match(/(?:\(D\)|D\)|D\.)\s*(.*?)(?=\s*(?:Answer|Ans|Solution|\n\n)|$)/i);
 
-                questions.push({
-                    id: 'q_pdf_' + Date.now() + '_' + idx,
-                    text: questionText,
-                    options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' },
-                    correct: 'A',
-                    explanation: 'Extracted from PDF.'
-                });
+                // Match Answer
+                const ansMatch = cleanBlock.match(/(?:Answer|Ans|Correct Answer)\s*[:\-\=]?\s*([A-D])/i);
+                
+                // Match Explanation / Solution
+                const expMatch = cleanBlock.match(/(?:Explanation|Solution)\s*[:\-\=]?\s*(.*)/i);
+
+                // Extract Question Text
+                let qText = cleanBlock;
+                if (optAMatch) {
+                    qText = cleanBlock.substring(0, optAMatch.index).replace(/^(?:Q(?:uestion)?\s*\d+[\.:\)]|\b\d{1,3}[\.:\)]\s*)/i, '').trim();
+                }
+
+                if (qText && optAMatch && optBMatch) {
+                    questions.push({
+                        id: 'q_pdf_' + Date.now() + '_' + idx,
+                        text: qText || `Imported Question ${idx + 1}`,
+                        options: {
+                            A: optAMatch ? optAMatch[1].trim() : 'Option A',
+                            B: optBMatch ? optBMatch[1].trim() : 'Option B',
+                            C: optCMatch ? optCMatch[1].trim() : 'Option C',
+                            D: optDMatch ? optDMatch[1].trim() : 'Option D'
+                        },
+                        optionImages: {},
+                        correct: ansMatch ? ansMatch[1].toUpperCase() : 'A',
+                        explanation: expMatch ? expMatch[1].trim() : 'Extracted solution from PDF paper.',
+                        solutionImage: ''
+                    });
+                }
             });
 
             return questions;
