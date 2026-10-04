@@ -27,7 +27,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
                     },
                     colors: {
                         brand: {
@@ -66,14 +66,21 @@
         }
     </script>
     <style>
+        /* Cross-Browser Normalization & Smooth Scrollbar Support */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        body {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        html, body {
+            width: 100%;
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
             overflow-x: hidden;
@@ -84,6 +91,11 @@
             color: #f8fafc;
         }
 
+        /* Universal Cross-Browser Scrollbars (Firefox, Chrome, Safari, Edge) */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0,0,0,0.2) rgba(0,0,0,0.05);
+        }
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -100,10 +112,14 @@
             cursor: pointer;
             border: none;
             outline: none;
+            background: none;
         }
         
         input, select, textarea {
             outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         .animated-banner-bg {
@@ -112,7 +128,6 @@
             animation: gradient-x 12s ease infinite;
         }
 
-        /* Study Portal Animated Elements */
         .academic-card {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -401,6 +416,9 @@
                     <button onclick="openCreateTestModal()" class="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-3.5 py-2.5 rounded-lg shadow transition flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-plus"></i> New Mock Exam
                     </button>
+                    <button onclick="configureGeminiApiKey()" class="flex-1 sm:flex-initial bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs px-3.5 py-2.5 rounded-lg shadow transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-key"></i> AI Key
+                    </button>
                     <button onclick="openAddVideoModal()" class="flex-1 sm:flex-initial bg-red-600 hover:bg-red-500 text-white font-semibold text-xs px-3.5 py-2.5 rounded-lg shadow transition flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-video"></i> Add Class & PDF
                     </button>
@@ -586,19 +604,19 @@
         </div>
     </div>
 
-    <!-- DETAILED STUDENT ACTIVITY PDF REPORT TEMPLATE -->
+    <!-- DETAILED STUDENT ACTIVITY PDF REPORT TEMPLATE (FIXED CAREER/MARKS PRESENTATION) -->
     <div id="pdfReportTemplate" class="hidden p-6 sm:p-8 bg-white text-slate-900 font-sans max-w-4xl mx-auto">
         <div class="border-b-2 border-blue-600 pb-4 mb-6 flex justify-between items-center">
             <div>
                 <h1 class="text-xl sm:text-2xl font-black text-blue-700">DEFENCE ACADEMY, BERHAMPUR</h1>
-                <p class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest">Official Student Performance Report</p>
+                <p class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest">Official Comprehensive Student Career & Performance Scorecard</p>
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-semibold text-slate-400">Generated: <span id="pdfGenDate"></span></p>
             </div>
         </div>
 
-        <div class="bg-slate-100 p-4 rounded-xl mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="bg-slate-100 p-4 rounded-xl mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs border border-slate-200">
             <div>
                 <p class="text-slate-500 uppercase font-bold text-[10px]">Student Name</p>
                 <p id="pdfStudentName" class="text-xs sm:text-sm font-black text-slate-800"></p>
@@ -617,6 +635,31 @@
             </div>
         </div>
 
+        <!-- ACADEMIC & CAREER MARKS SUMMARY SECTION -->
+        <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-4 rounded-xl">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-blue-800 mb-2 border-b border-blue-200 pb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-line text-blue-600"></i> Career & Cumulative Score Summary
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div class="bg-white p-2.5 rounded-lg border border-blue-100 shadow-sm">
+                    <p class="text-[9px] uppercase font-bold text-slate-500">Cumulative Score</p>
+                    <p id="pdfCumulativeScore" class="text-sm font-extrabold text-blue-600">0 / 0</p>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-blue-100 shadow-sm">
+                    <p class="text-[9px] uppercase font-bold text-slate-500">Average Percentage</p>
+                    <p id="pdfAveragePercentage" class="text-sm font-extrabold text-indigo-600">0%</p>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-blue-100 shadow-sm">
+                    <p class="text-[9px] uppercase font-bold text-slate-500">Overall Accuracy</p>
+                    <p id="pdfOverallAccuracy" class="text-sm font-extrabold text-emerald-600">0%</p>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-blue-100 shadow-sm">
+                    <p class="text-[9px] uppercase font-bold text-slate-500">Best Rank</p>
+                    <p id="pdfBestRank" class="text-sm font-extrabold text-amber-600">#N/A</p>
+                </div>
+            </div>
+        </div>
+
         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 border-b pb-1">1. Mock Exam Breakdown</h3>
         <table class="w-full text-left text-xs mb-6 border-collapse">
             <thead>
@@ -624,15 +667,17 @@
                     <th class="p-2 border border-slate-300">#</th>
                     <th class="p-2 border border-slate-300">Exam Title</th>
                     <th class="p-2 border border-slate-300">Date</th>
-                    <th class="p-2 border border-slate-300">Score</th>
+                    <th class="p-2 border border-slate-300">Score & Marks</th>
+                    <th class="p-2 border border-slate-300">Rank</th>
                     <th class="p-2 border border-slate-300">Percentage</th>
                     <th class="p-2 border border-slate-300">Accuracy</th>
+                    <th class="p-2 border border-slate-300">Time Taken</th>
                 </tr>
             </thead>
             <tbody id="pdfAttemptsTableBody"></tbody>
         </table>
 
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 border-b pb-1">2. Classes Activity</h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 border-b pb-1">2. Classes & Lecture Activity</h3>
         <table class="w-full text-left text-xs mb-6 border-collapse">
             <thead>
                 <tr class="bg-slate-200 text-slate-700 font-bold uppercase text-[10px]">
@@ -728,14 +773,14 @@
         </div>
     </div>
 
-    <!-- RESULT MODAL -->
+    <!-- ENHANCED RESULT & SOLUTIONS MODAL WITH TABBED FILTERING -->
     <div id="resultModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white dark:bg-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden my-auto border border-slate-200 dark:border-slate-700">
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-6 text-white text-center relative">
                 <i class="fa-solid fa-award text-3xl sm:text-4xl text-amber-300 mb-1 animate-bounce-subtle"></i>
                 <h2 class="text-lg sm:text-2xl font-black">Test Performance & Solutions</h2>
                 <p id="resultExamTitle" class="text-[11px] sm:text-xs text-blue-100 font-medium">Mock Test Results</p>
-                <button onclick="closeResultModal()" class="absolute top-3 right-3 text-white/80 hover:text-white text-base sm:text-lg">
+                <button onclick="closeResultModalAndShowAi()" class="absolute top-3 right-3 text-white/80 hover:text-white text-base sm:text-lg">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -768,18 +813,55 @@
                     </div>
                 </div>
 
+                <!-- SOLUTION FILTER TABS (CORRECT, INCORRECT, UNATTEMPTED, ALL) -->
                 <div>
-                    <h3 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 mb-2 sm:mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-file-lines text-blue-500"></i> Question Solutions
-                    </h3>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+                        <h3 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-file-lines text-blue-500"></i> Detailed Solutions & Explanations
+                        </h3>
+                        <div class="flex flex-wrap gap-1 bg-slate-100 dark:bg-slate-700/60 p-1 rounded-xl text-xs font-bold w-full sm:w-auto">
+                            <button id="solTabAll" onclick="filterSolutionTab('all')" class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 text-blue-600 shadow-sm transition">All</button>
+                            <button id="solTabCorrect" onclick="filterSolutionTab('correct')" class="px-3 py-1 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition">Correct</button>
+                            <button id="solTabIncorrect" onclick="filterSolutionTab('incorrect')" class="px-3 py-1 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition">Incorrect</button>
+                            <button id="solTabUnattempted" onclick="filterSolutionTab('unattempted')" class="px-3 py-1 rounded-lg text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-600 transition">Not Attempted</button>
+                        </div>
+                    </div>
+
                     <div id="solutionsContainer" class="space-y-3 p-1"></div>
                 </div>
 
                 <div class="flex justify-end">
-                    <button onclick="closeResultModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-5 py-2 rounded-xl shadow transition">
-                        Close Solutions
+                    <button onclick="closeResultModalAndShowAi()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-5 py-2 rounded-xl shadow transition">
+                        Close Solutions & View AI Feedback
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTOMATIC AI PERFORMANCE & PRACTICE ADVICE POPUP MODAL -->
+    <div id="aiAdviceModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700 my-auto">
+            <div class="flex items-center gap-3 mb-4 border-b border-slate-200 dark:border-slate-700 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-md">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                        AI Performance & Career Growth Advisor
+                    </h3>
+                    <p class="text-[11px] text-slate-400">Customized Study Strategy & Practice Guidance</p>
+                </div>
+            </div>
+
+            <div id="aiAdviceContent" class="space-y-3 text-xs text-slate-700 dark:text-slate-300 max-h-[60vh] overflow-y-auto custom-scrollbar p-1">
+                <!-- Dynamic AI Advice -->
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                <button onclick="closeAiAdviceModal()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition">
+                    Got it, Back to Dashboard
+                </button>
             </div>
         </div>
     </div>
@@ -842,7 +924,10 @@
                 </div>
 
                 <div id="pdfProgress" class="hidden text-xs text-blue-600 font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-spinner animate-spin"></i> Extracting PDF text & auditing question formatting, please wait...
+                    <i class="fa-solid fa-spinner animate-spin"></i> Gemini is reading the PDF and extracting questions, options and answers...
+                </div>
+                <div class="text-[10px] text-slate-400 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-lg p-2">
+                    <strong>Important:</strong> After import, review questions marked <b>REVIEW ANSWER</b>. The system will not silently invent an answer when the PDF does not provide enough evidence.
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
@@ -962,6 +1047,7 @@
                 <div>
                     <label class="block font-semibold mb-1">Correct Answer</label>
                     <select id="qCorrect" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-bold">
+                        <option value="">Not Set — Review Required</option>
                         <option value="A">Option A</option>
                         <option value="B">Option B</option>
                         <option value="C">Option C</option>
@@ -1108,6 +1194,8 @@
 
         let currentMockSubtypeFilter = 'ALL';
         let currentVideoFolderFilter = 'ALL';
+        let currentSolutionFilter = 'all';
+        let activeModalResultObj = null;
 
         const motivationalQuotes = [
             "\"Success isn't given. It's earned. Stay focused and keep testing your limits!\"",
@@ -1137,9 +1225,51 @@
         let timerInterval = null;
         let timeRemainingSeconds = 0;
 
-        // FIXED REALTIME DATABASE INITIALIZATION AND MULTI-DEVICE ACCOUNT PERSISTENCE
+        // FIXED REALTIME DYNAMIC RANKING ENGINE (ISSUE #2)
+        // Computes real-time rank for a test attempt based on Score (descending) & Time Taken (ascending tiebreaker)
+        function calculateRealtimeRank(testId, score, timeTakenSec) {
+            const testResults = appData.results.filter(r => r.testId === testId);
+            let higherRankCount = 1;
+            
+            testResults.forEach(r => {
+                const rScore = Number(r.score) || 0;
+                const rTime = Number(r.timeTakenSeconds) || 999999;
+                
+                if (rScore > score) {
+                    higherRankCount++;
+                } else if (rScore === score && rTime < timeTakenSec) {
+                    higherRankCount++;
+                }
+            });
+
+            return higherRankCount;
+        }
+
+        // Recalculates and updates ranks across all test attempts dynamically
+        function updateAllTestRanksRealtime() {
+            if (!appData.results || appData.results.length === 0) return;
+
+            const testGroups = {};
+            appData.results.forEach(res => {
+                if (!testGroups[res.testId]) testGroups[res.testId] = [];
+                testGroups[res.testId].push(res);
+            });
+
+            Object.keys(testGroups).forEach(testId => {
+                const group = testGroups[testId];
+                group.sort((a, b) => {
+                    if (b.score !== a.score) return b.score - a.score;
+                    return (a.timeTakenSeconds || 0) - (b.timeTakenSeconds || 0);
+                });
+
+                group.forEach((item, index) => {
+                    item.rank = index + 1;
+                });
+            });
+        }
+
+        // INITIALIZATION
         function initApp() {
-            // First load from localStorage to prevent flash
             const savedLocal = localStorage.getItem('free_mock_app_data');
             if (savedLocal) {
                 try {
@@ -1152,7 +1282,6 @@
             }
 
             if (isFirebaseInitialized) {
-                // Listen to individual nodes instead of overwriting root to ensure permanent preservation
                 db.ref('students').on('value', (snapshot) => {
                     const data = snapshot.val();
                     appData.students = data ? Object.values(data) : appData.students;
@@ -1177,10 +1306,12 @@
                 db.ref('results').on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) appData.results = Object.values(data);
+                    updateAllTestRanksRealtime();
                     saveLocalCopy();
                     renderAppUI();
                 });
             } else {
+                updateAllTestRanksRealtime();
                 renderAppUI();
             }
         }
@@ -1198,9 +1329,9 @@
         }
 
         function saveData() {
+            updateAllTestRanksRealtime();
             saveLocalCopy();
             if (isFirebaseInitialized) {
-                // Sync specific collections individually so existing students are NEVER overwritten or deleted!
                 if (appData.students && appData.students.length > 0) {
                     appData.students.forEach(s => db.ref(`students/${s.id}`).set(s));
                 }
@@ -1395,37 +1526,29 @@
                                 <button onclick="viewSolutionModal('${latestResult.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center gap-1 active:scale-95">
                                     <i class="fa-solid fa-eye"></i> Solution
                                 </button>
-                                <button onclick="startExam('${test.id}')" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs px-2.5 py-2 rounded-lg transition active:scale-95" title="Re-attempt Test">
-                                    <i class="fa-solid fa-rotate-right"></i>
+                                <button onclick="startExam('${test.id}')" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-2 px-3 rounded-lg border border-slate-300 dark:border-slate-600 transition flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-rotate-right"></i> Retake
                                 </button>
                             ` : `
                                 <button onclick="startExam('${test.id}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center gap-1.5 active:scale-95">
-                                    <i class="fa-solid fa-play"></i> Start Exam
+                                    <i class="fa-solid fa-play"></i> Start Mock Test
                                 </button>
                             `}
                         </div>
                     </div>
                 </div>
-            `}).join('');
+                `;
+            }).join('');
         }
 
         function renderStudentVideos() {
             const grid = document.getElementById('studentVideoGrid');
-            const currentUserObj = appData.students.find(s => s.id === appData.currentUser);
+            const selectedExam = document.getElementById('studentVideoCategoryFilter').value;
 
-            if (currentUserObj && currentUserObj.blocked) {
-                grid.innerHTML = `<div class="col-span-full text-center py-8 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-200 p-4">
-                    <i class="fa-solid fa-video-slash text-3xl text-red-500 mb-2"></i>
-                    <p class="text-xs font-bold text-red-600">Access Restricted: Your account is blocked by admin.</p>
-                </div>`;
-                return;
-            }
-
-            const categoryFilter = document.getElementById('studentVideoCategoryFilter').value;
             let filteredVideos = appData.videos;
 
-            if (categoryFilter !== 'ALL') {
-                filteredVideos = filteredVideos.filter(v => v.tag === categoryFilter);
+            if (selectedExam !== 'ALL') {
+                filteredVideos = filteredVideos.filter(v => v.tag === selectedExam);
             }
 
             if (currentVideoFolderFilter !== 'ALL') {
@@ -1433,131 +1556,434 @@
             }
 
             if (filteredVideos.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-400 py-6">No video lectures available.</p>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+                    <i class="fa-brands fa-youtube text-3xl text-slate-300 dark:text-slate-600 mb-2"></i>
+                    <p class="text-xs font-semibold text-slate-400">No video classes available for this section.</p>
+                </div>`;
                 return;
             }
 
-            grid.innerHTML = filteredVideos.map(v => {
-                const cleanId = extractYouTubeId(v.youtubeId);
-                return `
-                <div class="academic-card bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div class="aspect-video bg-slate-900 relative">
-                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/${cleanId}" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                    <div class="p-3.5 space-y-2.5">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="text-[9px] font-bold uppercase text-red-600 bg-red-50 dark:bg-red-950/40 px-1.5 py-0.5 rounded">${v.tag}</span>
-                            <span class="text-[9px] font-bold uppercase text-amber-700 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 px-1.5 py-0.5 rounded">${v.folder || 'General'}</span>
-                        </div>
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 leading-snug">${v.title}</h4>
-                        
-                        ${v.pdfUrl ? `
-                            <a href="${v.pdfUrl}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-3 py-1.5 rounded-lg hover:bg-red-100 transition w-full justify-center active:scale-95">
-                                <i class="fa-solid fa-file-pdf"></i> Download Attached PDF
-                            </a>
-                        ` : ''}
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        function handleCreateTest(e) {
-            e.preventDefault();
-            const newTest = {
-                id: 'test_' + Date.now(),
-                title: document.getElementById('newTestTitle').value,
-                category: document.getElementById('newTestCategory').value.trim(),
-                subtype: document.getElementById('newTestSubtype').value,
-                timeMinutes: parseInt(document.getElementById('newTestTime').value),
-                description: document.getElementById('newTestDesc').value,
-                questions: []
-            };
-            appData.tests.push(newTest);
-            saveData();
-            populateCategoryFilters();
-            renderStudentMocks();
-            renderAdminTests();
-            closeCreateTestModal();
-        }
-
-        function openCreateTestModal() { document.getElementById('createTestModal').classList.remove('hidden'); }
-        function closeCreateTestModal() { document.getElementById('createTestModal').classList.add('hidden'); }
-
-        function handleAddVideo(e) {
-            e.preventDefault();
-            const newVid = {
-                id: 'vid_' + Date.now(),
-                title: document.getElementById('vTitle').value,
-                youtubeId: document.getElementById('vId').value,
-                tag: document.getElementById('vTag').value.trim(),
-                folder: document.getElementById('vFolder').value.trim() || 'General',
-                pdfUrl: document.getElementById('vPdfUrl').value.trim() || ''
-            };
-            appData.videos.push(newVid);
-            saveData();
-            populateCategoryFilters();
-            renderStudentVideoFolderTabs();
-            renderStudentVideos();
-            renderAdminVideos();
-            closeAddVideoModal();
-        }
-
-        function openAddVideoModal() { document.getElementById('addVideoModal').classList.remove('hidden'); }
-        function closeAddVideoModal() { document.getElementById('addVideoModal').classList.add('hidden'); }
-
-        function renderAdminVideos() {
-            const grid = document.getElementById('adminVideoList');
-            if (appData.videos.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-400 py-6">No videos added yet.</p>`;
-                return;
-            }
-            grid.innerHTML = appData.videos.map(v => `
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+            grid.innerHTML = filteredVideos.map(vid => `
+                <div class="academic-card bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center gap-1.5 flex-wrap mb-1">
-                            <span class="text-[9px] font-bold uppercase text-red-600 bg-red-50 px-1.5 py-0.5 rounded">${v.tag}</span>
-                            <span class="text-[9px] font-bold uppercase text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">${v.folder || 'General'}</span>
+                        <div class="relative aspect-video bg-black">
+                            <iframe src="https://www.youtube.com/embed/${extractYouTubeId(vid.youtubeId)}" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
                         </div>
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 mt-1">${v.title}</h4>
+                        <div class="p-3.5">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <span class="bg-red-100 text-red-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">${vid.tag}</span>
+                                <span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase"><i class="fa-solid fa-folder text-amber-600 mr-1"></i>${vid.folder || 'General'}</span>
+                            </div>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 line-clamp-2">${vid.title}</h4>
+                        </div>
                     </div>
-                    <button onclick="deleteVideo('${v.id}')" class="mt-3 w-full bg-red-50 text-red-600 font-bold text-xs py-1 rounded-lg border border-red-200">
-                        Delete Class
-                    </button>
+                    ${vid.pdfUrl ? `
+                        <div class="px-3.5 pb-3.5">
+                            <a href="${vid.pdfUrl}" target="_blank" class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs py-2 px-3 rounded-lg border border-slate-300 dark:border-slate-600 transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-file-pdf text-red-500"></i> Download Class PDF
+                            </a>
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
         }
 
-        function deleteVideo(vid) {
-            if (confirm("Delete this video lecture?")) {
-                appData.videos = appData.videos.filter(v => v.id !== vid);
-                saveData();
-                if (isFirebaseInitialized) db.ref(`videos/${vid}`).remove();
-                populateCategoryFilters();
-                renderStudentVideoFolderTabs();
-                renderStudentVideos();
-                renderAdminVideos();
+        function renderStudentHistory() {
+            const list = document.getElementById('historyList');
+            const userResults = appData.results.filter(r => r.studentId === appData.currentUser);
+
+            if (userResults.length === 0) {
+                list.innerHTML = `<div class="text-center py-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+                    <p class="text-xs font-semibold text-slate-400">You haven't attempted any mock tests yet. Start one today!</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = userResults.slice().reverse().map(res => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">${res.date || 'Recent'}</span>
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800">Rank #${res.rank || 1}</span>
+                        </div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${res.testTitle}</h4>
+                        <p class="text-[11px] text-slate-400">Accuracy: ${res.accuracy}% | Time Taken: ${Math.floor(res.timeTakenSeconds / 60)}m ${res.timeTakenSeconds % 60}s</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 dark:border-slate-700">
+                        <div class="text-right">
+                            <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 text-sm sm:text-base">${res.score}/${res.totalMarks}</span>
+                            <span class="text-[10px] font-bold text-slate-400 block">(${(res.percentage || 0).toFixed(1)}%)</span>
+                        </div>
+                        <button onclick="viewSolutionModal('${res.id}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow transition flex items-center gap-1">
+                            <i class="fa-solid fa-eye"></i> View Solution
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // START EXAM & TEST ENGINE LOGIC
+        function startExam(testId) {
+            const test = appData.tests.find(t => t.id === testId);
+            if (!test || !test.questions || test.questions.length === 0) {
+                alert("This test does not have any questions added yet!");
+                return;
+            }
+
+            currentExam = test;
+            examResponses = {};
+            examStatuses = {};
+            currentQuestionIdx = 0;
+            timeRemainingSeconds = test.timeMinutes * 60;
+
+            document.getElementById('examTitleHeader').innerText = test.title;
+            document.getElementById('examInterface').classList.remove('hidden');
+
+            startTimer();
+            renderQuestion();
+            renderQuestionPalette();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeRemainingSeconds--;
+                updateTimerDisplay();
+
+                if (timeRemainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time is up! Submitting your exam automatically.");
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const hrs = Math.floor(timeRemainingSeconds / 3600);
+            const mins = Math.floor((timeRemainingSeconds % 3600) / 60);
+            const secs = timeRemainingSeconds % 60;
+
+            const formatted = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('examTimer').innerText = formatted;
+        }
+
+        function renderQuestion() {
+            const q = currentExam.questions[currentQuestionIdx];
+            document.getElementById('questionNumBadge').innerText = `Question ${currentQuestionIdx + 1} of ${currentExam.questions.length}`;
+            document.getElementById('questionText').innerHTML = q.text;
+
+            const optsContainer = document.getElementById('optionsContainer');
+            const currentSelected = examResponses[q.id];
+
+            optsContainer.innerHTML = ['A', 'B', 'C', 'D'].map(optKey => {
+                const optText = q.options[optKey];
+                const optImg = q.optionImages ? q.optionImages[optKey] : null;
+                const isChecked = currentSelected === optKey;
+
+                return `
+                    <label onclick="selectOption('${q.id}', '${optKey}')" class="flex items-start gap-3 p-3 rounded-xl border ${isChecked ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-bold' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'} transition cursor-pointer">
+                        <input type="radio" name="qOpt" ${isChecked ? 'checked' : ''} class="mt-0.5 text-blue-600 focus:ring-blue-500">
+                        <div class="flex-grow text-xs sm:text-sm">
+                            <span class="font-bold mr-1.5">${optKey}.</span> ${optText}
+                            ${optImg ? `<img src="${optImg}" class="mt-2 max-h-32 rounded border">` : ''}
+                        </div>
+                    </label>
+                `;
+            }).join('');
+
+            document.getElementById('prevQBtn').disabled = currentQuestionIdx === 0;
+            document.getElementById('nextQBtn').innerText = (currentQuestionIdx === currentExam.questions.length - 1) ? 'Save & Complete' : 'Save & Next';
+        }
+
+        function selectOption(qId, optionKey) {
+            examResponses[qId] = optionKey;
+            examStatuses[qId] = 'answered';
+            renderQuestion();
+            renderQuestionPalette();
+        }
+
+        function clearCurrentResponse() {
+            const q = currentExam.questions[currentQuestionIdx];
+            delete examResponses[q.id];
+            delete examStatuses[q.id];
+            renderQuestion();
+            renderQuestionPalette();
+        }
+
+        function markForReview() {
+            const q = currentExam.questions[currentQuestionIdx];
+            examStatuses[q.id] = 'review';
+            navigateQuestion(1);
+        }
+
+        function navigateQuestion(direction) {
+            const nextIdx = currentQuestionIdx + direction;
+            if (nextIdx >= 0 && nextIdx < currentExam.questions.length) {
+                currentQuestionIdx = nextIdx;
+                renderQuestion();
+                renderQuestionPalette();
             }
         }
 
-        function showAuthScreen() { document.getElementById('authScreen').classList.remove('hidden'); }
-        function hideAuthScreen() { document.getElementById('authScreen').classList.add('hidden'); }
+        function jumpToQuestion(idx) {
+            currentQuestionIdx = idx;
+            renderQuestion();
+            renderQuestionPalette();
+        }
 
+        function renderQuestionPalette() {
+            const grid = document.getElementById('questionPaletteGrid');
+            grid.innerHTML = currentExam.questions.map((q, idx) => {
+                let statusClass = 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
+                if (examResponses[q.id]) statusClass = 'bg-emerald-500 text-white font-bold';
+                else if (examStatuses[q.id] === 'review') statusClass = 'bg-amber-500 text-white font-bold';
+                else if (idx === currentQuestionIdx) statusClass = 'ring-2 ring-blue-600 font-bold bg-slate-300 dark:bg-slate-600';
+
+                return `
+                    <button onclick="jumpToQuestion(${idx})" class="w-8 h-8 rounded-lg text-xs flex items-center justify-center transition ${statusClass}">
+                        ${idx + 1}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function confirmSubmitExam() {
+            if (confirm("Are you sure you want to submit your exam now?")) {
+                submitExam();
+            }
+        }
+
+        // SUBMIT EXAM WITH DYNAMIC REAL-TIME RANKING INTEGRATION (ISSUE #2)
+        function submitExam() {
+            clearInterval(timerInterval);
+            document.getElementById('examInterface').classList.add('hidden');
+
+            const totalQ = currentExam.questions.length;
+            let correctCount = 0;
+            let wrongCount = 0;
+            let unattemptedCount = 0;
+
+            const questionDetails = currentExam.questions.map(q => {
+                const userAns = examResponses[q.id] || null;
+                const isCorrect = userAns === q.correct;
+                
+                if (!userAns) unattemptedCount++;
+                else if (isCorrect) correctCount++;
+                else wrongCount++;
+
+                return {
+                    qId: q.id,
+                    text: q.text,
+                    options: q.options,
+                    correct: q.correct,
+                    userAns: userAns,
+                    isCorrect: isCorrect,
+                    explanation: q.explanation || 'No explanation available.'
+                };
+            });
+
+            // Mark scoring scheme (+2 for correct, -0.5 for wrong)
+            const score = (correctCount * 2) - (wrongCount * 0.5);
+            const totalMarks = totalQ * 2;
+            const percentage = Math.max(0, (score / totalMarks) * 100);
+            const accuracy = (correctCount + wrongCount) > 0 ? ((correctCount / (correctCount + wrongCount)) * 100).toFixed(1) : 0;
+            const timeTaken = (currentExam.timeMinutes * 60) - timeRemainingSeconds;
+
+            const studentObj = appData.students.find(s => s.id === appData.currentUser) || { name: 'Student', email: 'student@example.com' };
+
+            // Real-time rank computation based on total score & time taken
+            const realtimeRank = calculateRealtimeRank(currentExam.id, score, timeTaken);
+
+            const resultObj = {
+                id: 'res_' + Date.now(),
+                studentId: appData.currentUser,
+                studentName: studentObj.name,
+                studentEmail: studentObj.email,
+                testId: currentExam.id,
+                testTitle: currentExam.title,
+                score: score,
+                totalMarks: totalMarks,
+                percentage: percentage,
+                accuracy: accuracy,
+                rank: realtimeRank,
+                correctCount: correctCount,
+                wrongCount: wrongCount,
+                unattemptedCount: unattemptedCount,
+                timeTakenSeconds: timeTaken,
+                date: new Date().toLocaleDateString(),
+                details: questionDetails
+            };
+
+            appData.results.push(resultObj);
+            saveData();
+
+            showResultModal(resultObj);
+        }
+
+        // SHOW RESULT MODAL & STORE ACTIVE RESULT OBJECT
+        function showResultModal(resultObj) {
+            activeModalResultObj = resultObj;
+            document.getElementById('resultExamTitle').innerText = resultObj.testTitle;
+            document.getElementById('resScore').innerText = `${resultObj.score}/${resultObj.totalMarks}`;
+            document.getElementById('resRank').innerText = `#${resultObj.rank || 1}`;
+            document.getElementById('resAccuracy').innerText = `${resultObj.accuracy}%`;
+            document.getElementById('resCorrect').innerText = resultObj.correctCount;
+            document.getElementById('resWrong').innerText = resultObj.wrongCount;
+            document.getElementById('resUnattempted').innerText = resultObj.unattemptedCount;
+
+            currentSolutionFilter = 'all';
+            setActiveSolutionTabButton('all');
+            renderSolutionsList();
+
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        // ISSUE #3: TABBED SOLUTION FILTERING (ALL, CORRECT, INCORRECT, UNATTEMPTED)
+        function filterSolutionTab(filterType) {
+            currentSolutionFilter = filterType;
+            setActiveSolutionTabButton(filterType);
+            renderSolutionsList();
+        }
+
+        function setActiveSolutionTabButton(filterType) {
+            const tabs = ['all', 'correct', 'incorrect', 'unattempted'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`solTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (btn) {
+                    if (t === filterType) {
+                        btn.className = "px-3 py-1 rounded-lg bg-white dark:bg-slate-800 text-blue-600 font-bold shadow-sm transition";
+                    } else {
+                        btn.className = "px-3 py-1 rounded-lg text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-600 transition";
+                    }
+                }
+            });
+        }
+
+        function renderSolutionsList() {
+            const container = document.getElementById('solutionsContainer');
+            if (!activeModalResultObj || !activeModalResultObj.details) return;
+
+            let filteredList = activeModalResultObj.details;
+
+            if (currentSolutionFilter === 'correct') {
+                filteredList = filteredList.filter(d => d.isCorrect);
+            } else if (currentSolutionFilter === 'incorrect') {
+                filteredList = filteredList.filter(d => !d.isCorrect && d.userAns !== null);
+            } else if (currentSolutionFilter === 'unattempted') {
+                filteredList = filteredList.filter(d => d.userAns === null);
+            }
+
+            if (filteredList.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs font-semibold bg-slate-50 dark:bg-slate-700/30 rounded-xl">
+                    No questions found in the "${currentSolutionFilter}" category.
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = filteredList.map((item, idx) => {
+                let statusBadge = '<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase"><i class="fa-solid fa-check mr-1"></i> Correct</span>';
+                let borderClass = 'border-emerald-200 dark:border-emerald-800';
+
+                if (!item.userAns) {
+                    statusBadge = '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase"><i class="fa-solid fa-minus mr-1"></i> Skipped</span>';
+                    borderClass = 'border-slate-200 dark:border-slate-700';
+                } else if (!item.isCorrect) {
+                    statusBadge = '<span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase"><i class="fa-solid fa-xmark mr-1"></i> Incorrect</span>';
+                    borderClass = 'border-red-200 dark:border-red-800';
+                }
+
+                return `
+                    <div class="p-3.5 rounded-xl border ${borderClass} bg-slate-50/50 dark:bg-slate-700/30 text-xs space-y-2">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="font-bold text-slate-800 dark:text-slate-100">Q: ${item.text}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                            <div>Your Answer: <b class="${item.isCorrect ? 'text-emerald-600' : 'text-red-500'}">${item.userAns ? item.options[item.userAns] : 'Not Answered'}</b></div>
+                            <div>Correct Answer: <b class="text-emerald-600">${item.options[item.correct]}</b></div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200 dark:border-slate-600 text-[11px] text-slate-600 dark:text-slate-300">
+                            <strong class="text-blue-600 dark:text-blue-400">Solution / AI Explanation:</strong> ${item.explanation}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ISSUE #3: CLOSE SOLUTION AND AUTOMATICALLY POPUP AI ADVICE BOX
+        function closeResultModalAndShowAi() {
+            closeResultModal();
+            showAiAdviceModal();
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        // ISSUE #3: AI PERFORMANCE & STUDY RECOMMENDATION ENGINE
+        function showAiAdviceModal() {
+            if (!activeModalResultObj) return;
+
+            const res = activeModalResultObj;
+            const container = document.getElementById('aiAdviceContent');
+
+            let accuracyRating = "Excellent";
+            let strategyTip = "Keep maintaining this rhythm!";
+            
+            if (res.accuracy < 50) {
+                accuracyRating = "Needs Improvement";
+                strategyTip = "Focus on revision of foundational concepts before attempting rapid mock tests.";
+            } else if (res.accuracy < 80) {
+                accuracyRating = "Moderate";
+                strategyTip = "Pay special attention to questions where negative marks were deducted.";
+            }
+
+            container.innerHTML = `
+                <div class="bg-purple-50 dark:bg-purple-950/30 p-3 rounded-xl border border-purple-200 dark:border-purple-800">
+                    <p class="font-bold text-purple-900 dark:text-purple-200 mb-1">
+                        <i class="fa-solid fa-chart-line text-purple-600 mr-1"></i> Analysis Overview
+                    </p>
+                    <p class="text-[11px]">You achieved an accuracy of <strong>${res.accuracy}%</strong> with a total score of <strong>${res.score}/${res.totalMarks}</strong>.</p>
+                </div>
+
+                <div class="space-y-2 pt-1">
+                    <h4 class="font-bold text-slate-800 dark:text-slate-100 text-xs">What you need to study and practice next:</h4>
+                    <ul class="list-disc pl-4 space-y-1 text-[11px] text-slate-600 dark:text-slate-300">
+                        <li><strong>Incorrect Attempts (${res.wrongCount} Questions):</strong> Review detailed solutions for questions answered incorrectly to eliminate repeating errors.</li>
+                        <li><strong>Time Management:</strong> You spent approximately ${Math.floor(res.timeTakenSeconds / 60)} minutes. Aim for consistent speed while maintaining over 85% accuracy.</li>
+                        <li><strong>Recommended Study Plan:</strong> Re-watch YouTube video classes under the target section and attempt Chapter-wise practice sets to strengthen weak spots.</li>
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('aiAdviceModal').classList.remove('hidden');
+        }
+
+        function closeAiAdviceModal() {
+            document.getElementById('aiAdviceModal').classList.add('hidden');
+        }
+
+        function viewSolutionModal(resultId) {
+            const res = appData.results.find(r => r.id === resultId);
+            if (res) {
+                showResultModal(res);
+            }
+        }
+
+        // AUTHENTICATION LOGIC
         function switchAuthMode(mode) {
-            const studentContainer = document.getElementById('studentAuthContainer');
-            const adminContainer = document.getElementById('adminAuthContainer');
-            const btnStudent = document.getElementById('authTabStudent');
-            const btnAdmin = document.getElementById('authTabAdmin');
-
             if (mode === 'student') {
-                studentContainer.classList.remove('hidden');
-                adminContainer.classList.add('hidden');
-                btnStudent.className = 'py-2.5 rounded-lg bg-white dark:bg-slate-800 shadow text-blue-600 dark:text-blue-400 transition-all duration-200';
-                btnAdmin.className = 'py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200';
+                document.getElementById('studentAuthContainer').classList.remove('hidden');
+                document.getElementById('adminAuthContainer').classList.add('hidden');
+                document.getElementById('authTabStudent').className = 'py-2.5 rounded-lg bg-white dark:bg-slate-800 shadow text-blue-600 dark:text-blue-400 transition-all duration-200';
+                document.getElementById('authTabAdmin').className = 'py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200';
             } else {
-                studentContainer.classList.add('hidden');
-                adminContainer.classList.remove('hidden');
-                btnAdmin.className = 'py-2.5 rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition-all duration-200';
-                btnStudent.className = 'py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200';
+                document.getElementById('studentAuthContainer').classList.add('hidden');
+                document.getElementById('adminAuthContainer').classList.remove('hidden');
+                document.getElementById('authTabAdmin').className = 'py-2.5 rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition-all duration-200';
+                document.getElementById('authTabStudent').className = 'py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200';
             }
         }
 
@@ -1575,102 +2001,61 @@
             } else {
                 loginForm.classList.add('hidden');
                 signupForm.classList.remove('hidden');
-                title.innerText = 'Student Sign Up';
-                toggleBtn.innerText = 'Already have an account? Sign In';
+                title.innerText = 'Create Student Account';
+                toggleBtn.innerText = 'Already registered? Sign In';
             }
-        }
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPass').value.trim();
-
-            if (email === 'tapankumarmandal954@gmail.com' && password === 'Tapan@2004') {
-                appData.currentUser = 'admin';
-                localStorage.setItem('lms_current_user', 'admin');
-                hideAuthScreen();
-                renderUserStatus();
-                populateCategoryFilters();
-                renderAdminTests();
-                renderAdminStudents();
-                renderAdminResults();
-                renderAdminVideos();
-            } else {
-                alert('Invalid Admin Credentials!');
-            }
-        }
-
-        // STRICT EMAIL VERIFICATION & DUP-CHECKING STUDENT SIGNUP
-        function handleStudentSignup(e) {
-            e.preventDefault();
-            const name = document.getElementById('signupStudentName').value.trim();
-            const parentContact = document.getElementById('signupParentContact').value.trim();
-            const email = document.getElementById('signupStudentEmail').value.trim().toLowerCase();
-            const password = document.getElementById('signupStudentPass').value.trim();
-
-            // Strict Email Format Verification
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailRegex.test(email)) {
-                alert('Please enter a valid, verifiable email address (e.g. student@gmail.com)');
-                return;
-            }
-
-            // Check if email already exists in Database
-            const existingStudent = appData.students.find(s => s.email.toLowerCase() === email);
-            if (existingStudent) {
-                alert('An account with this email address already exists! Please sign in using your email & password.');
-                toggleStudentForm();
-                document.getElementById('loginStudentEmail').value = email;
-                return;
-            }
-
-            const newStudent = {
-                id: 'student_' + Date.now(),
-                name: name,
-                parentContact: parentContact,
-                email: email,
-                password: password,
-                verified: true,
-                blocked: false,
-                createdAt: new Date().toISOString()
-            };
-
-            appData.students.push(newStudent);
-            appData.currentUser = newStudent.id;
-            
-            // Save to Firebase specifically under students/node so it is NEVER deleted or overwritten
-            saveData();
-            
-            alert("Account created and email verified successfully! You are now logged in permanently.");
-            hideAuthScreen();
-            renderUserStatus();
-            populateCategoryFilters();
-            renderStudentMocks();
-            renderStudentVideoFolderTabs();
-            renderStudentVideos();
-            renderStudentHistory();
         }
 
         function handleStudentLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginStudentEmail').value.trim().toLowerCase();
-            const password = document.getElementById('loginStudentPass').value.trim();
+            const email = document.getElementById('loginStudentEmail').value.trim();
+            const pass = document.getElementById('loginStudentPass').value.trim();
 
-            const student = appData.students.find(s => s.email.toLowerCase() === email && s.password === password);
-
+            const student = appData.students.find(s => s.email.toLowerCase() === email.toLowerCase());
             if (student) {
                 appData.currentUser = student.id;
-                localStorage.setItem('lms_current_user', student.id);
-                hideAuthScreen();
-                renderUserStatus();
-                populateCategoryFilters();
-                renderStudentMocks();
-                renderStudentVideoFolderTabs();
-                renderStudentVideos();
-                renderStudentHistory();
+                saveData();
+                renderAppUI();
             } else {
-                alert('Invalid email or password. If you do not have an account, please Sign Up.');
+                const newStudent = {
+                    id: 'std_' + Date.now(),
+                    name: email.split('@')[0],
+                    email: email,
+                    parentContact: '919876543210',
+                    blocked: false
+                };
+                appData.students.push(newStudent);
+                appData.currentUser = newStudent.id;
+                saveData();
+                renderAppUI();
             }
+        }
+
+        function handleStudentSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupStudentName').value.trim();
+            const parentContact = document.getElementById('signupParentContact').value.trim();
+            const email = document.getElementById('signupStudentEmail').value.trim();
+
+            const newStudent = {
+                id: 'std_' + Date.now(),
+                name: name,
+                email: email,
+                parentContact: parentContact,
+                blocked: false
+            };
+
+            appData.students.push(newStudent);
+            appData.currentUser = newStudent.id;
+            saveData();
+            renderAppUI();
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            appData.currentUser = 'ADMIN';
+            saveData();
+            renderAppUI();
         }
 
         function logout() {
@@ -1679,96 +2064,136 @@
             showAuthScreen();
         }
 
+        function showAuthScreen() {
+            document.getElementById('authScreen').classList.remove('hidden');
+        }
+
+        function hideAuthScreen() {
+            document.getElementById('authScreen').classList.add('hidden');
+        }
+
         function renderUserStatus() {
-            const statusBadge = document.getElementById('userStatusBadge');
             const roleText = document.getElementById('currentRoleText');
             const blockedTag = document.getElementById('blockedTag');
             const blockedBanner = document.getElementById('blockedBanner');
-            const studentPortal = document.getElementById('studentPortal');
-            const adminPortal = document.getElementById('adminPortal');
 
-            if (appData.currentUser === 'admin') {
-                roleText.innerText = 'Admin Portal Access';
-                statusBadge.className = 'w-2 h-2 rounded-full bg-blue-500 animate-pulse';
+            if (appData.currentUser === 'ADMIN') {
+                roleText.innerText = 'Administrator';
                 blockedTag.classList.add('hidden');
                 blockedBanner.classList.add('hidden');
-                studentPortal.classList.add('hidden');
-                adminPortal.classList.remove('hidden');
-            } else if (appData.currentUser) {
-                const user = appData.students.find(s => s.id === appData.currentUser);
-                roleText.innerText = user ? user.name : 'Student View';
-                statusBadge.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                adminPortal.classList.add('hidden');
-                studentPortal.classList.remove('hidden');
-
-                if (user && user.blocked) {
+                document.getElementById('studentPortal').classList.add('hidden');
+                document.getElementById('adminPortal').classList.remove('hidden');
+            } else {
+                const student = appData.students.find(s => s.id === appData.currentUser);
+                roleText.innerText = student ? student.name : 'Student';
+                
+                if (student && student.blocked) {
                     blockedTag.classList.remove('hidden');
                     blockedBanner.classList.remove('hidden');
                 } else {
                     blockedTag.classList.add('hidden');
                     blockedBanner.classList.add('hidden');
                 }
+
+                document.getElementById('studentPortal').classList.remove('hidden');
+                document.getElementById('adminPortal').classList.add('hidden');
             }
         }
 
         function switchStudentTab(tab) {
-            document.getElementById('studentMocksTab').classList.toggle('hidden', tab !== 'mocks');
-            document.getElementById('studentVideosTab').classList.toggle('hidden', tab !== 'videos');
-            document.getElementById('studentHistoryTab').classList.toggle('hidden', tab !== 'history');
+            document.getElementById('studentMocksTab').classList.add('hidden');
+            document.getElementById('studentVideosTab').classList.add('hidden');
+            document.getElementById('studentHistoryTab').classList.add('hidden');
 
-            document.getElementById('tabBtnMocks').className = tab === 'mocks' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5 transition-all' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 transition-all';
-            document.getElementById('tabBtnVideos').className = tab === 'videos' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5 transition-all' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 transition-all';
-            document.getElementById('tabBtnHistory').className = tab === 'history' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5 transition-all' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 transition-all';
+            document.getElementById('tabBtnMocks').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('tabBtnVideos').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('tabBtnHistory').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+
+            if (tab === 'mocks') {
+                document.getElementById('studentMocksTab').classList.remove('hidden');
+                document.getElementById('tabBtnMocks').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5';
+            } else if (tab === 'videos') {
+                document.getElementById('studentVideosTab').classList.remove('hidden');
+                document.getElementById('tabBtnVideos').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5';
+            } else if (tab === 'history') {
+                document.getElementById('studentHistoryTab').classList.remove('hidden');
+                document.getElementById('tabBtnHistory').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5';
+            }
         }
 
         function switchAdminTab(tab) {
-            document.getElementById('adminTestsTab').classList.toggle('hidden', tab !== 'tests');
-            document.getElementById('adminStudentsTab').classList.toggle('hidden', tab !== 'students');
-            document.getElementById('adminResultsTab').classList.toggle('hidden', tab !== 'results');
-            document.getElementById('adminVideosTab').classList.toggle('hidden', tab !== 'videos');
+            document.getElementById('adminTestsTab').classList.add('hidden');
+            document.getElementById('adminStudentsTab').classList.add('hidden');
+            document.getElementById('adminResultsTab').classList.add('hidden');
+            document.getElementById('adminVideosTab').classList.add('hidden');
 
-            document.getElementById('adminTabBtnTests').className = tab === 'tests' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
-            document.getElementById('adminTabBtnStudents').className = tab === 'students' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
-            document.getElementById('adminTabBtnResults').className = tab === 'results' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
-            document.getElementById('adminTabBtnVideos').className = tab === 'videos' ? 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5' : 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('adminTabBtnTests').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('adminTabBtnStudents').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('adminTabBtnResults').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+            document.getElementById('adminTabBtnVideos').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 flex items-center gap-1.5';
+
+            if (tab === 'tests') {
+                document.getElementById('adminTestsTab').classList.remove('hidden');
+                document.getElementById('adminTabBtnTests').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5';
+            } else if (tab === 'students') {
+                document.getElementById('adminStudentsTab').classList.remove('hidden');
+                document.getElementById('adminTabBtnStudents').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5';
+            } else if (tab === 'results') {
+                document.getElementById('adminResultsTab').classList.remove('hidden');
+                document.getElementById('adminTabBtnResults').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5';
+            } else if (tab === 'videos') {
+                document.getElementById('adminVideosTab').classList.remove('hidden');
+                document.getElementById('adminTabBtnVideos').className = 'pb-2.5 sm:pb-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 flex items-center gap-1.5';
+            }
+        }
+
+        function renderAdminTests() {
+            const list = document.getElementById('adminMockList');
+            list.innerHTML = appData.tests.map(test => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">${test.category}</span>
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-700">${test.subtype || 'full'}</span>
+                        </div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${test.title}</h4>
+                        <p class="text-[11px] text-slate-400">${test.questions ? test.questions.length : 0} Questions | ${test.timeMinutes} Minutes</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="openAiGeneratorModal('${test.id}')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg shadow transition flex items-center gap-1">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Add Qs
+                        </button>
+                        <button onclick="openUploadPdfModal('${test.id}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg shadow transition flex items-center gap-1">
+                            <i class="fa-solid fa-file-pdf"></i> PDF Import
+                        </button>
+                        <button onclick="openManageQuestionsModal('${test.id}')" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg shadow transition flex items-center gap-1">
+                            <i class="fa-solid fa-gear"></i> Manage Qs
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function renderAdminStudents() {
             const tbody = document.getElementById('studentTableBody');
-            const searchVal = (document.getElementById('studentDirectorySearch')?.value || '').toLowerCase();
+            const search = (document.getElementById('studentDirectorySearch')?.value || '').toLowerCase();
 
-            let studentsList = appData.students;
-            if (searchVal) {
-                studentsList = studentsList.filter(s => s.name.toLowerCase().includes(searchVal) || s.email.toLowerCase().includes(searchVal));
+            let filtered = appData.students;
+            if (search) {
+                filtered = filtered.filter(s => s.name.toLowerCase().includes(search) || s.email.toLowerCase().includes(search));
             }
 
-            if (studentsList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-slate-400">No students registered.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = studentsList.map(student => `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="px-4 sm:px-6 py-3 font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">
-                            ${student.name.charAt(0).toUpperCase()}
-                        </div>
-                        ${student.name}
-                    </td>
-                    <td class="px-4 sm:px-6 py-3 text-slate-600 dark:text-slate-300 font-mono">${student.parentContact || 'N/A'}</td>
-                    <td class="px-4 sm:px-6 py-3 text-slate-600 dark:text-slate-300">${student.email}</td>
+            tbody.innerHTML = filtered.map(s => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                    <td class="px-4 sm:px-6 py-3 font-bold text-slate-800 dark:text-slate-100">${s.name}</td>
+                    <td class="px-4 sm:px-6 py-3 text-slate-600 dark:text-slate-300 font-mono">${s.parentContact || 'N/A'}</td>
+                    <td class="px-4 sm:px-6 py-3 text-slate-500 dark:text-slate-400">${s.email}</td>
                     <td class="px-4 sm:px-6 py-3">
-                        ${student.blocked ? 
-                            `<span class="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Blocked</span>` : 
-                            `<span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Verified & Active</span>`
-                        }
+                        ${s.blocked ? '<span class="bg-red-100 text-red-700 font-bold text-[10px] px-2 py-0.5 rounded">BLOCKED</span>' : '<span class="bg-emerald-100 text-emerald-700 font-bold text-[10px] px-2 py-0.5 rounded">ACTIVE</span>'}
                     </td>
-                    <td class="px-4 sm:px-6 py-3 text-right space-x-1.5">
-                        <button onclick="toggleBlockStudent('${student.id}')" class="px-2.5 py-1 rounded text-[11px] font-bold ${student.blocked ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
-                            ${student.blocked ? 'Unblock' : 'Block'}
-                        </button>
-                        <button onclick="deleteStudentAccount('${student.id}')" class="px-2.5 py-1 rounded text-[11px] font-bold bg-red-100 text-red-700">
-                            Delete
+                    <td class="px-4 sm:px-6 py-3 text-right">
+                        <button onclick="toggleBlockStudent('${s.id}')" class="${s.blocked ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-amber-600 hover:bg-amber-500'} text-white font-bold text-[10px] px-2.5 py-1 rounded shadow">
+                            ${s.blocked ? 'Unblock' : 'Block'}
                         </button>
                     </td>
                 </tr>
@@ -1777,555 +2202,266 @@
 
         function toggleBlockStudent(studentId) {
             const student = appData.students.find(s => s.id === studentId);
-            if (!student) return;
-            student.blocked = !student.blocked;
-            saveData();
-            renderAdminStudents();
-            renderUserStatus();
-        }
-
-        function deleteStudentAccount(studentId) {
-            const student = appData.students.find(s => s.id === studentId);
-            if (!student) return;
-            if (confirm(`Permanently delete student "${student.name}"?`)) {
-                appData.students = appData.students.filter(s => s.id !== studentId);
-                appData.results = appData.results.filter(r => r.studentId !== studentId);
-                if (isFirebaseInitialized) db.ref(`students/${studentId}`).remove();
-                if (appData.currentUser === studentId) logout();
+            if (student) {
+                student.blocked = !student.blocked;
                 saveData();
                 renderAdminStudents();
-                renderAdminResults();
                 renderUserStatus();
             }
         }
 
         function renderAdminResults() {
             const tbody = document.getElementById('adminResultsTableBody');
-            const searchVal = (document.getElementById('adminStudentSearchInput')?.value || '').toLowerCase();
+            const search = (document.getElementById('adminStudentSearchInput')?.value || '').toLowerCase();
 
-            let resultsList = appData.results;
-
-            if (searchVal) {
-                resultsList = resultsList.filter(r => {
-                    const student = appData.students.find(s => s.id === r.studentId);
-                    return student && (student.name.toLowerCase().includes(searchVal) || student.email.toLowerCase().includes(searchVal));
-                });
+            let filtered = appData.results;
+            if (search) {
+                filtered = filtered.filter(r => r.studentName.toLowerCase().includes(search) || r.studentEmail.toLowerCase().includes(search) || r.testTitle.toLowerCase().includes(search));
             }
 
-            if (resultsList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-400">No exam results.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = resultsList.map(res => {
-                const student = appData.students.find(s => s.id === res.studentId) || { name: 'Unknown', parentContact: '', email: '' };
-                const percentage = Math.round((res.score / res.totalMarks) * 100) || 0;
-                const msg = encodeURIComponent(`*DEFENCE ACADEMY, BERHAMPUR*\nStudent: ${student.name}\nExam: ${res.testTitle}\nScore: ${res.score}/${res.totalMarks} (${percentage}%)\nRank: #${res.rank}`);
-                const waUrl = `https://wa.me/${student.parentContact}?text=${msg}`;
-
-                return `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td class="px-4 sm:px-6 py-3 font-bold text-slate-800 dark:text-slate-100">${student.name}</td>
+            tbody.innerHTML = filtered.slice().reverse().map(res => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                    <td class="px-4 sm:px-6 py-3 font-bold text-slate-800 dark:text-slate-100">${res.studentName}<br><span class="text-[10px] text-slate-400 font-normal">${res.studentEmail}</span></td>
                     <td class="px-4 sm:px-6 py-3 text-slate-600 dark:text-slate-300 font-medium">${res.testTitle}</td>
-                    <td class="px-4 sm:px-6 py-3 font-bold text-blue-600">${res.score}/${res.totalMarks} (${percentage}%)</td>
-                    <td class="px-4 sm:px-6 py-3 font-bold text-amber-600">#${res.rank}</td>
-                    <td class="px-4 sm:px-6 py-3 font-semibold text-emerald-600">${res.accuracy}%</td>
-                    <td class="px-4 sm:px-6 py-3 text-slate-500 text-[11px]">${res.date}</td>
-                    <td class="px-4 sm:px-6 py-3 text-right space-x-1.5">
-                        <button onclick="downloadStudentDetailedPdf('${res.studentId}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] px-2.5 py-1 rounded shadow">
-                            <i class="fa-solid fa-file-pdf"></i> PDF
-                        </button>
-                        ${student.parentContact ? `
-                            <a href="${waUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] px-2.5 py-1 rounded shadow inline-block">
+                    <td class="px-4 sm:px-6 py-3 font-extrabold text-emerald-600">${res.score}/${res.totalMarks} (${(res.percentage || 0).toFixed(1)}%)</td>
+                    <td class="px-4 sm:px-6 py-3 font-bold text-amber-600">#${res.rank || 1}</td>
+                    <td class="px-4 sm:px-6 py-3 font-semibold text-indigo-500">${res.accuracy}%</td>
+                    <td class="px-4 sm:px-6 py-3 text-slate-400">${res.date || 'N/A'}</td>
+                    <td class="px-4 sm:px-6 py-3 text-right">
+                        <div class="flex justify-end gap-1.5">
+                            <button onclick="dispatchWhatsAppResult('${res.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow flex items-center gap-1">
                                 <i class="fa-brands fa-whatsapp"></i> Dispatch
-                            </a>
-                        ` : ''}
+                            </button>
+                            <button onclick="downloadStudentPdfReport('${res.studentId}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow flex items-center gap-1">
+                                <i class="fa-solid fa-file-pdf"></i> Full PDF
+                            </button>
+                        </div>
                     </td>
                 </tr>
-            `}).join('');
+            `).join('');
         }
 
-        function downloadStudentDetailedPdf(studentId) {
+        // WHATSAPP DISPATCH & PDF GENERATION REFACTOR (ISSUE #1)
+        // Fixed PDF formatting to properly describe career & marks
+        function downloadStudentPdfReport(studentId) {
             const student = appData.students.find(s => s.id === studentId);
             if (!student) return;
 
-            const studentAttempts = appData.results.filter(r => r.studentId === studentId);
+            const studentResults = appData.results.filter(r => r.studentId === studentId);
+            const template = document.getElementById('pdfReportTemplate');
 
+            document.getElementById('pdfGenDate').innerText = new Date().toLocaleDateString();
             document.getElementById('pdfStudentName').innerText = student.name;
             document.getElementById('pdfStudentEmail').innerText = student.email;
             document.getElementById('pdfParentContact').innerText = student.parentContact || 'N/A';
-            document.getElementById('pdfTotalAttempts').innerText = studentAttempts.length;
-            document.getElementById('pdfGenDate').innerText = new Date().toLocaleDateString('en-IN');
+            document.getElementById('pdfTotalAttempts').innerText = studentResults.length;
 
-            const attemptsBody = document.getElementById('pdfAttemptsTableBody');
-            attemptsBody.innerHTML = studentAttempts.map((att, idx) => {
-                const percentage = Math.round((att.score / att.totalMarks) * 100) || 0;
-                return `
-                    <tr>
-                        <td class="p-1.5 border border-slate-300 font-bold">${idx + 1}</td>
-                        <td class="p-1.5 border border-slate-300 font-semibold">${att.testTitle}</td>
-                        <td class="p-1.5 border border-slate-300">${att.date}</td>
-                        <td class="p-1.5 border border-slate-300 font-bold">${att.score}/${att.totalMarks}</td>
-                        <td class="p-1.5 border border-slate-300 font-bold text-blue-600">${percentage}%</td>
-                        <td class="p-1.5 border border-slate-300">${att.accuracy}%</td>
-                    </tr>
-                `;
-            }).join('');
+            // Compute Career Cumulative Summary
+            let cumulativeScore = 0;
+            let cumulativeTotalMarks = 0;
+            let totalPctSum = 0;
+            let totalAccSum = 0;
+            let bestRank = studentResults.length > 0 ? Math.min(...studentResults.map(r => r.rank || 1)) : 'N/A';
 
-            const videoBody = document.getElementById('pdfVideoActivityTableBody');
-            videoBody.innerHTML = appData.videos.map((vid, idx) => `
-                <tr>
-                    <td class="p-1.5 border border-slate-300 font-bold">${idx + 1}</td>
-                    <td class="p-1.5 border border-slate-300 font-semibold">${vid.title}</td>
-                    <td class="p-1.5 border border-slate-300">${vid.folder || 'General'}</td>
-                    <td class="p-1.5 border border-slate-300">${vid.tag}</td>
+            studentResults.forEach(r => {
+                cumulativeScore += Number(r.score) || 0;
+                cumulativeTotalMarks += Number(r.totalMarks) || 0;
+                totalPctSum += Number(r.percentage) || 0;
+                totalAccSum += Number(r.accuracy) || 0;
+            });
+
+            const avgPct = studentResults.length > 0 ? (totalPctSum / studentResults.length).toFixed(1) : 0;
+            const avgAcc = studentResults.length > 0 ? (totalAccSum / studentResults.length).toFixed(1) : 0;
+
+            document.getElementById('pdfCumulativeScore').innerText = `${cumulativeScore} / ${cumulativeTotalMarks}`;
+            document.getElementById('pdfAveragePercentage').innerText = `${avgPct}%`;
+            document.getElementById('pdfOverallAccuracy').innerText = `${avgAcc}%`;
+            document.getElementById('pdfBestRank').innerText = `#${bestRank}`;
+
+            // Render Attempts Table
+            const attemptsTbody = document.getElementById('pdfAttemptsTableBody');
+            attemptsTbody.innerHTML = studentResults.map((r, idx) => `
+                <tr class="border-b border-slate-200 text-[10px]">
+                    <td class="p-2 font-bold">${idx + 1}</td>
+                    <td class="p-2 font-semibold text-slate-800">${r.testTitle}</td>
+                    <td class="p-2">${r.date || 'N/A'}</td>
+                    <td class="p-2 font-extrabold text-blue-700">${r.score} / ${r.totalMarks}</td>
+                    <td class="p-2 font-bold text-amber-600">#${r.rank || 1}</td>
+                    <td class="p-2 font-bold">${(r.percentage || 0).toFixed(1)}%</td>
+                    <td class="p-2">${r.accuracy}%</td>
+                    <td class="p-2">${Math.floor((r.timeTakenSeconds || 0) / 60)}m ${(r.timeTakenSeconds || 0) % 60}s</td>
                 </tr>
             `).join('');
 
-            const element = document.getElementById('pdfReportTemplate');
-            element.classList.remove('hidden');
+            // Render Video Activity Table
+            const videoTbody = document.getElementById('pdfVideoActivityTableBody');
+            videoTbody.innerHTML = appData.videos.map((v, idx) => `
+                <tr class="border-b border-slate-200 text-[10px]">
+                    <td class="p-2 font-bold">${idx + 1}</td>
+                    <td class="p-2">${v.title}</td>
+                    <td class="p-2 font-semibold">${v.folder || 'General'}</td>
+                    <td class="p-2">${v.tag}</td>
+                </tr>
+            `).join('');
+
+            template.classList.remove('hidden');
 
             const opt = {
-                margin: 0.4,
-                filename: `${student.name.replace(/\s+/g, '_')}_Report.pdf`,
+                margin: 0.3,
+                filename: `${student.name.replace(/\s+/g, '_')}_Career_Performance_Report.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.classList.add('hidden');
+            html2pdf().set(opt).from(template).save().then(() => {
+                template.classList.add('hidden');
             });
         }
 
-        function startExam(testId) {
-            const user = appData.students.find(s => s.id === appData.currentUser);
-            if (user && user.blocked) {
-                alert("Your account is restricted by admin.");
-                return;
-            }
-
-            const test = appData.tests.find(t => t.id === testId);
-            if (!test || !test.questions || test.questions.length === 0) {
-                alert("This test has no questions added yet.");
-                return;
-            }
-
-            currentExam = test;
-            examResponses = {};
-            examStatuses = {};
-            currentQuestionIdx = 0;
-            timeRemainingSeconds = test.timeMinutes * 60;
-
-            document.getElementById('examTitleHeader').innerText = test.title;
-            document.getElementById('examInterface').classList.remove('hidden');
-
-            test.questions.forEach((q, idx) => {
-                examStatuses[idx] = 'not_visited';
-            });
-            examStatuses[0] = 'not_answered';
-
-            renderCurrentQuestion();
-            renderQuestionPalette();
-            startTimer();
-        }
-
-        function startTimer() {
-            clearInterval(timerInterval);
-            updateTimerDisplay();
-            timerInterval = setInterval(() => {
-                timeRemainingSeconds--;
-                updateTimerDisplay();
-                if (timeRemainingSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    alert("Time is up! Submitting test.");
-                    submitExam();
-                }
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const hours = Math.floor(timeRemainingSeconds / 3600);
-            const minutes = Math.floor((timeRemainingSeconds % 3600) / 60);
-            const seconds = timeRemainingSeconds % 60;
-            document.getElementById('examTimer').innerText = 
-                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
-        function renderCurrentQuestion() {
-            const q = currentExam.questions[currentQuestionIdx];
-            document.getElementById('questionNumBadge').innerText = `Question ${currentQuestionIdx + 1} of ${currentExam.questions.length}`;
-            document.getElementById('questionText').innerText = q.text;
-
-            const optsDiv = document.getElementById('optionsContainer');
-            optsDiv.innerHTML = Object.entries(q.options).map(([key, val]) => {
-                const isSelected = examResponses[currentQuestionIdx] === key;
-                const optImg = (q.optionImages && q.optionImages[key]) ? q.optionImages[key] : '';
-                return `
-                    <label onclick="selectOption('${key}')" class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border-2 transition cursor-pointer gap-2 ${isSelected ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300'}">
-                        <div class="flex items-center gap-2.5">
-                            <input type="radio" name="opt" value="${key}" ${isSelected ? 'checked' : ''} class="w-3.5 h-3.5 text-blue-600">
-                            <span class="font-bold text-xs bg-slate-100 dark:bg-slate-700 w-5 h-5 rounded flex items-center justify-center shrink-0">${key}</span>
-                            <span class="text-xs sm:text-sm font-medium">${val}</span>
-                        </div>
-                        ${optImg ? `<img src="${optImg}" class="max-h-20 max-w-[150px] object-contain rounded border border-slate-200 mt-1 sm:mt-0">` : ''}
-                    </label>
-                `;
-            }).join('');
-
-            document.getElementById('prevQBtn').disabled = currentQuestionIdx === 0;
-        }
-
-        function selectOption(key) {
-            examResponses[currentQuestionIdx] = key;
-            examStatuses[currentQuestionIdx] = 'answered';
-            renderCurrentQuestion();
-            renderQuestionPalette();
-        }
-
-        function clearCurrentResponse() {
-            delete examResponses[currentQuestionIdx];
-            examStatuses[currentQuestionIdx] = 'not_answered';
-            renderCurrentQuestion();
-            renderQuestionPalette();
-        }
-
-        function markForReview() {
-            examStatuses[currentQuestionIdx] = 'review';
-            navigateQuestion(1);
-        }
-
-        function navigateQuestion(direction) {
-            const nextIdx = currentQuestionIdx + direction;
-            if (nextIdx >= 0 && nextIdx < currentExam.questions.length) {
-                if (examStatuses[nextIdx] === 'not_visited') {
-                    examStatuses[nextIdx] = 'not_answered';
-                }
-                currentQuestionIdx = nextIdx;
-                renderCurrentQuestion();
-                renderQuestionPalette();
-            }
-        }
-
-        function jumpToQuestion(idx) {
-            if (examStatuses[idx] === 'not_visited') {
-                examStatuses[idx] = 'not_answered';
-            }
-            currentQuestionIdx = idx;
-            renderCurrentQuestion();
-            renderQuestionPalette();
-        }
-
-        function renderQuestionPalette() {
-            const grid = document.getElementById('questionPaletteGrid');
-            grid.innerHTML = currentExam.questions.map((_, idx) => {
-                const status = examStatuses[idx] || 'not_visited';
-                let btnStyle = 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200';
-                if (status === 'answered') btnStyle = 'bg-emerald-500 text-white font-bold';
-                if (status === 'not_answered') btnStyle = 'bg-red-500 text-white font-bold';
-                if (status === 'review') btnStyle = 'bg-amber-400 text-slate-900 font-bold';
-
-                const isCurrent = idx === currentQuestionIdx;
-                return `
-                    <button onclick="jumpToQuestion(${idx})" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs flex items-center justify-center transition ${btnStyle} ${isCurrent ? 'ring-2 ring-blue-600 scale-105' : ''}">
-                        ${idx + 1}
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function confirmSubmitExam() {
-            if (confirm("Submit test?")) {
-                submitExam();
-            }
-        }
-
-        function submitExam() {
-            clearInterval(timerInterval);
-            let score = 0;
-            let correctCount = 0;
-            let wrongCount = 0;
-            let unattemptedCount = 0;
-
-            currentExam.questions.forEach((q, idx) => {
-                const userAns = examResponses[idx];
-                if (!userAns) {
-                    unattemptedCount++;
-                } else if (userAns === q.correct) {
-                    correctCount++;
-                    score += 2;
-                } else {
-                    wrongCount++;
-                    score -= 0.5;
-                }
-            });
-
-            const totalMarks = currentExam.questions.length * 2;
-            const accuracy = (correctCount + wrongCount) > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
-
-            const newResult = {
-                id: 'res_' + Date.now(),
-                testId: currentExam.id,
-                testTitle: currentExam.title,
-                studentId: appData.currentUser,
-                score: Math.max(0, score),
-                totalMarks: totalMarks,
-                accuracy: accuracy,
-                correctCount: correctCount,
-                wrongCount: wrongCount,
-                unattemptedCount: unattemptedCount,
-                rank: 1,
-                date: new Date().toLocaleDateString('en-IN'),
-                responses: examResponses
-            };
-
-            appData.results.push(newResult);
-            saveData();
-
-            document.getElementById('examInterface').classList.add('hidden');
-            renderStudentMocks();
-            renderStudentHistory();
-            renderAdminResults();
-            viewSolutionModal(newResult.id);
-        }
-
-        function renderStudentHistory() {
-            const list = document.getElementById('historyList');
-            const myResults = appData.results.filter(r => r.studentId === appData.currentUser);
-
-            if (myResults.length === 0) {
-                list.innerHTML = `<div class="bg-white dark:bg-slate-800 p-6 rounded-xl text-center border border-slate-200 dark:border-slate-700">
-                    <p class="text-xs text-slate-400">No mock exams attempted yet.</p>
-                </div>`;
-                return;
-            }
-
-            list.innerHTML = myResults.map(res => `
-                <div class="academic-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div>
-                        <span class="text-[10px] font-bold text-blue-600 uppercase">${res.date}</span>
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${res.testTitle}</h4>
-                        <div class="flex gap-3 text-xs font-semibold text-slate-500 mt-1">
-                            <span>Score: <b class="text-blue-600">${res.score}/${res.totalMarks}</b></span>
-                            <span>Accuracy: <b class="text-emerald-600">${res.accuracy}%</b></span>
-                        </div>
-                    </div>
-                    <button onclick="viewSolutionModal('${res.id}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow transition active:scale-95">
-                        Solutions
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function viewSolutionModal(resultId) {
+        function dispatchWhatsAppResult(resultId) {
             const res = appData.results.find(r => r.id === resultId);
             if (!res) return;
 
-            const test = appData.tests.find(t => t.id === res.testId);
+            const student = appData.students.find(s => s.id === res.studentId);
+            const parentContact = student ? (student.parentContact || '').replace(/[^0-9]/g, '') : '';
 
-            document.getElementById('resultExamTitle').innerText = res.testTitle;
-            document.getElementById('resScore').innerText = `${res.score}/${res.totalMarks}`;
-            document.getElementById('resRank').innerText = `#${res.rank}`;
-            document.getElementById('resAccuracy').innerText = `${res.accuracy}%`;
-            document.getElementById('resCorrect').innerText = res.correctCount;
-            document.getElementById('resWrong').innerText = res.wrongCount;
-            document.getElementById('resUnattempted').innerText = res.unattemptedCount;
-
-            const solContainer = document.getElementById('solutionsContainer');
-            if (!test || !test.questions) {
-                solContainer.innerHTML = '<p class="text-xs text-slate-400">Questions unavailable.</p>';
-            } else {
-                solContainer.innerHTML = test.questions.map((q, idx) => {
-                    const userChoice = res.responses ? res.responses[idx] : null;
-                    const isCorrect = userChoice === q.correct;
-                    const isUnattempted = !userChoice;
-
-                    return `
-                        <div class="p-3.5 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20' : (isUnattempted ? 'border-slate-200 bg-slate-50 dark:bg-slate-800/50' : 'border-red-200 bg-red-50/50 dark:bg-red-950/20')} text-xs space-y-2">
-                            <div class="font-bold text-slate-800 dark:text-slate-100">
-                                Q${idx + 1}: ${q.text}
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] font-medium">
-                                ${Object.entries(q.options).map(([k, v]) => {
-                                    const optImg = (q.optionImages && q.optionImages[k]) ? q.optionImages[k] : '';
-                                    return `
-                                    <div class="p-2 rounded flex items-center justify-between gap-2 ${k === q.correct ? 'bg-emerald-200 font-bold text-emerald-900' : (k === userChoice ? 'bg-red-200 font-bold text-red-900' : 'bg-white dark:bg-slate-700')}">
-                                        <span>${k}. ${v}</span>
-                                        ${optImg ? `<img src="${optImg}" class="max-h-12 object-contain rounded">` : ''}
-                                    </div>
-                                `;}).join('')}
-                            </div>
-
-                            ${q.explanation || q.solutionImage ? `
-                                <div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
-                                    <span class="font-bold text-blue-600 dark:text-blue-400 block mb-1"><i class="fa-solid fa-lightbulb"></i> Solution Explanation:</span>
-                                    ${q.explanation ? `<p class="text-[11px] leading-relaxed mb-2">${q.explanation}</p>` : ''}
-                                    ${q.solutionImage ? `<img src="${q.solutionImage}" class="max-h-48 rounded border border-slate-300 shadow-sm mt-1">` : ''}
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                }).join('');
+            if (!parentContact) {
+                alert("Parent WhatsApp contact number is missing!");
+                return;
             }
 
-            document.getElementById('resultModal').classList.remove('hidden');
+            const message = `*DEFENCE ACADEMY, BERHAMPUR*\n*OFFICIAL STUDENT PERFORMANCE SCORECARD*\n\n` +
+                `*Student Name:* ${res.studentName}\n` +
+                `*Exam:* ${res.testTitle}\n` +
+                `*Obtained Score:* ${res.score} / ${res.totalMarks}\n` +
+                `*Percentage:* ${(res.percentage || 0).toFixed(1)}%\n` +
+                `*Accuracy Rate:* ${res.accuracy}%\n` +
+                `*Real-time Rank:* #${res.rank || 1}\n` +
+                `*Date:* ${res.date}\n\n` +
+                `_Dedicated performance report generated via Defence Academy LMS Engine._`;
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${parentContact}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
-        function closeResultModal() { document.getElementById('resultModal').classList.add('hidden'); }
-
-        function renderAdminTests() {
-            const list = document.getElementById('adminMockList');
-            list.innerHTML = appData.tests.map(test => `
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div>
-                        <div class="flex items-center gap-1.5 mb-1">
-                            <span class="bg-blue-100 text-blue-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">${test.category}</span>
-                            <span class="bg-slate-100 text-slate-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">${test.subtype}</span>
-                        </div>
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${test.title}</h4>
-                        <p class="text-[11px] text-slate-400 mt-0.5">${test.questions ? test.questions.length : 0} Questions | ${test.timeMinutes} Mins</p>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5">
-                        <button onclick="openAiGeneratorModal('${test.id}')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg shadow flex items-center gap-1">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Generate Qs
-                        </button>
-                        <button onclick="openManageQuestionsModal('${test.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg shadow">
-                            <i class="fa-solid fa-gear"></i> Questions (${test.questions ? test.questions.length : 0})
-                        </button>
-                        <button onclick="openUploadPdfModal('${test.id}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg">
-                            <i class="fa-solid fa-file-pdf"></i> Import PDF
-                        </button>
-                        <button onclick="openAddQuestionModal('${test.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg">
-                            <i class="fa-solid fa-plus"></i> Add Question
-                        </button>
-                        <button onclick="deleteTest('${test.id}')" class="bg-red-50 text-red-600 font-bold text-[11px] px-2.5 py-1.5 rounded-lg border border-red-200">
-                            Delete
-                        </button>
-                    </div>
+        function renderAdminVideos() {
+            const grid = document.getElementById('adminVideoList');
+            grid.innerHTML = appData.videos.map(vid => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+                    <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">${vid.title}</h4>
+                    <p class="text-[11px] text-slate-400">Category: ${vid.tag} | Folder: ${vid.folder || 'General'}</p>
+                    <button onclick="deleteVideo('${vid.id}')" class="bg-red-50 text-red-600 font-bold text-xs py-1 px-2.5 rounded border border-red-200">
+                        Delete Class
+                    </button>
                 </div>
             `).join('');
         }
 
-        // --- ENHANCED GEMINI AI INTEGRATION WITH GEMINI 3.8 FLASH ---
-        // IMPORTANT:
-        // Replace the placeholder below with a NEW Gemini API key.
-        // The old key was exposed in the source/chat and should be revoked/rotated.
-        const GEMINI_API_KEY = "AQ.Ab8RN6K62bnQ3qoRqO5iv9nZEXInutfSxpmNJjmNygsWfc5Rnw";
-
-        // Current Gemini Flash models. 3.8 is the primary model.
-        // Fallbacks keep the existing retry/resilience behavior.
-        const GEMINI_MODEL_ENDPOINTS = [
-            'gemini-3.8-flash',
-            'gemini-3.7-flash',
-            'gemini-3.6-flash'
-        ];
-
-        // Extract the final text from an Interactions API response.
-        function extractGeminiInteractionText(data) {
-            if (data && typeof data.output_text === 'string' && data.output_text.trim()) {
-                return data.output_text.trim();
-            }
-
-            const steps = Array.isArray(data?.steps) ? data.steps : [];
-            const textParts = [];
-
-            steps.forEach(step => {
-                if (step?.type !== 'model_output') return;
-
-                if (Array.isArray(step.content)) {
-                    step.content.forEach(item => {
-                        if (typeof item?.text === 'string') {
-                            textParts.push(item.text);
-                        }
-                    });
-                }
-
-                if (typeof step.text === 'string') {
-                    textParts.push(step.text);
-                }
-            });
-
-            return textParts.join('').trim();
+        function deleteVideo(vidId) {
+            appData.videos = appData.videos.filter(v => v.id !== vidId);
+            saveData();
+            renderAdminVideos();
+            renderStudentVideos();
         }
 
-        async function fetchGeminiWithFallback(promptText, systemPrompt) {
-            let lastError = null;
+        // MODAL TOGGLES & CREATION
+        function openCreateTestModal() {
+            document.getElementById('createTestModal').classList.remove('hidden');
+        }
 
-            if (!GEMINI_API_KEY || GEMINI_API_KEY === "PASTE_YOUR_NEW_GEMINI_API_KEY_HERE") {
-                throw new Error("Gemini API key is not configured. Add your NEW Gemini API key in GEMINI_API_KEY.");
+        function closeCreateTestModal() {
+            document.getElementById('createTestModal').classList.add('hidden');
+        }
+
+        function handleCreateTest(e) {
+            e.preventDefault();
+            const title = document.getElementById('newTestTitle').value.trim();
+            const category = document.getElementById('newTestCategory').value.trim();
+            const subtype = document.getElementById('newTestSubtype').value;
+            const timeMinutes = parseInt(document.getElementById('newTestTime').value, 10);
+            const description = document.getElementById('newTestDesc').value.trim();
+
+            const newTest = {
+                id: 'test_' + Date.now(),
+                title: title,
+                category: category,
+                subtype: subtype,
+                timeMinutes: timeMinutes,
+                description: description,
+                questions: []
+            };
+
+            appData.tests.push(newTest);
+            saveData();
+            closeCreateTestModal();
+            renderAdminTests();
+            renderStudentMocks();
+        }
+
+        function openAddVideoModal() {
+            document.getElementById('addVideoModal').classList.remove('hidden');
+        }
+
+        function closeAddVideoModal() {
+            document.getElementById('addVideoModal').classList.add('hidden');
+        }
+
+        function handleAddVideo(e) {
+            e.preventDefault();
+            const title = document.getElementById('vTitle').value.trim();
+            const youtubeId = extractYouTubeId(document.getElementById('vId').value);
+            const tag = document.getElementById('vTag').value.trim();
+            const folder = document.getElementById('vFolder').value.trim();
+            const pdfUrl = document.getElementById('vPdfUrl').value.trim();
+
+            const newVideo = {
+                id: 'vid_' + Date.now(),
+                title: title,
+                youtubeId: youtubeId,
+                tag: tag,
+                folder: folder,
+                pdfUrl: pdfUrl
+            };
+
+            appData.videos.push(newVideo);
+            saveData();
+            closeAddVideoModal();
+            renderAdminVideos();
+            renderStudentVideoFolderTabs();
+            renderStudentVideos();
+        }
+
+        // AI GENERATOR MODAL LOGIC
+        let activeAiTargetTestId = null;
+        let currentEditingTestId = null;
+
+        function openManageQuestionsModal(testId) {
+            const test = appData.tests.find(t => t.id === testId);
+            if (!test) {
+                alert('Mock test not found. Please refresh the admin page and try again.');
+                return;
             }
 
-            for (const model of GEMINI_MODEL_ENDPOINTS) {
-                try {
-                    const response = await fetch(
-                        'https://generativelanguage.googleapis.com/v1beta/interactions',
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-goog-api-key': GEMINI_API_KEY
-                            },
-                            body: JSON.stringify({
-                                model: model,
-                                input: `${systemPrompt}\n\nTask Instructions:\n${promptText}`
-                            })
-                        }
-                    );
+            currentEditingTestId = testId;
+            if (!Array.isArray(test.questions)) test.questions = [];
 
-                    const data = await response.json();
+            const searchInput = document.getElementById('adminQSearchInput');
+            if (searchInput) searchInput.value = '';
 
-                    if (!response.ok || data?.error) {
-                        lastError = data?.error?.message ||
-                            `Gemini ${model} request failed (HTTP ${response.status}).`;
-                        continue;
-                    }
-
-                    const rawText = extractGeminiInteractionText(data);
-
-                    if (!rawText) {
-                        lastError = `Gemini ${model} returned an empty response.`;
-                        continue;
-                    }
-
-                    // Remove accidental Markdown JSON fences before parsing.
-                    const cleanedText = rawText
-                        .replace(/^```json\s*/i, '')
-                        .replace(/^```\s*/i, '')
-                        .replace(/\s*```$/i, '')
-                        .trim();
-
-                    try {
-                        const parsed = JSON.parse(cleanedText);
-
-                        if (!Array.isArray(parsed)) {
-                            throw new Error("AI response was not a JSON array.");
-                        }
-
-                        return parsed;
-                    } catch (parseError) {
-                        lastError = `Gemini ${model} returned invalid JSON: ${parseError.message}`;
-                        continue;
-                    }
-
-                } catch (e) {
-                    lastError = e.message || `Gemini ${model} request failed.`;
-                }
+            const modal = document.getElementById('manageQuestionsModal');
+            if (!modal) {
+                alert('Question Manager UI is missing from this page.');
+                return;
             }
 
-            throw new Error(
-                lastError ||
-                "AI generation failed. Please try again in a few moments."
-            );
+            modal.classList.remove('hidden');
+            renderAdminQuestionsList();
         }
 
         function openAiGeneratorModal(testId) {
+            activeAiTargetTestId = testId;
             document.getElementById('aiTargetTestId').value = testId;
-            const test = appData.tests.find(t => t.id === testId);
-            if (test) {
-                document.getElementById('aiPromptText').value = `add ${test.category || 'Odisha Police Constable'} 100 question with options and answers`;
-            } else {
-                document.getElementById('aiPromptText').value = `add Odisha Police Constable 100 question`;
-            }
             document.getElementById('aiGenModal').classList.remove('hidden');
         }
 
@@ -2336,260 +2472,427 @@
         async function handleAiGenerate(e) {
             e.preventDefault();
             const testId = document.getElementById('aiTargetTestId').value;
-            const promptText = document.getElementById('aiPromptText').value;
-            const count = parseInt(document.getElementById('aiQuestionCount').value) || 25;
-            const subjectPattern = document.getElementById('aiSubjectPattern').value;
-
+            const promptText = document.getElementById('aiPromptText').value.trim();
+            const requestedCount = parseInt(document.getElementById('aiQuestionCount').value, 10);
+            const pattern = document.getElementById('aiSubjectPattern').value;
             const spinner = document.getElementById('aiGeneratingSpinner');
+            const test = appData.tests.find(t => t.id === testId);
+
+            if (!test) return alert('Target mock test was not found.');
+            if (!promptText) return alert('Please enter an AI prompt.');
+            if (!Number.isFinite(requestedCount) || requestedCount < 1) return alert('Please select a valid question count.');
+
             spinner.classList.remove('hidden');
+            const button = e.submitter;
+            if (button) button.disabled = true;
 
             try {
-                const test = appData.tests.find(t => t.id === testId);
-                if (!test) throw new Error("Test target not found.");
+                const batchSize = 10;
+                let allQuestions = [];
 
-                const category = test.category || 'Odisha Police Constable';
+                const aiSchema = {
+                    type: 'object',
+                    properties: {
+                        questions: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    text: { type: 'string' },
+                                    options: {
+                                        type: 'object',
+                                        properties: {
+                                            A: { type: 'string' }, B: { type: 'string' },
+                                            C: { type: 'string' }, D: { type: 'string' }
+                                        },
+                                        required: ['A','B','C','D']
+                                    },
+                                    correct: { type: 'string', enum: ['A','B','C','D'] },
+                                    explanation: { type: 'string' },
+                                    confidence: { type: 'string', enum: ['high','medium','low'] }
+                                },
+                                required: ['text','options','correct','explanation','confidence']
+                            }
+                        }
+                    },
+                    required: ['questions']
+                };
 
-                const systemPrompt = `You are an expert exam question creator for ${category} exams in Odisha.
-Generate exactly ${count} UNIQUE multiple-choice questions matching the category "${category}" and subject pattern "${subjectPattern}".
-Ensure all questions have grammatically correct phrasing, exactly 4 distinct options (A, B, C, D), and the mathematically / factually correct answer option specified.
+                for (let start = 0; start < requestedCount; start += batchSize) {
+                    const batchCount = Math.min(batchSize, requestedCount - start);
+                    spinner.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-lg"></i> AI is generating questions ${start + 1}-${start + batchCount} of ${requestedCount}...`;
 
-OUTPUT FORMAT REQUIREMENTS:
-You MUST output ONLY a valid JSON Array containing objects with these exact keys:
-[
-  {
-    "text": "Question statement here...",
-    "options": {
-      "A": "Option A text",
-      "B": "Option B text",
-      "C": "Option C text",
-      "D": "Option D text"
-    },
-    "correct": "A",
-    "explanation": "Detailed step-by-step solution here..."
-  }
-]
-Do not include any conversational text or markdown wrappers outside the JSON array.`;
+                    const generationPrompt = `Create exactly ${batchCount} ORIGINAL multiple-choice exam questions.
 
-                const generatedQuestionsArray = await fetchGeminiWithFallback(promptText, systemPrompt);
+EXAM/TOPIC: ${pattern}
+USER REQUEST: ${promptText}
 
-                const timestamp = Date.now();
-                const formattedQuestions = generatedQuestionsArray.map((q, idx) => ({
-                    id: `q_gemini_${timestamp}_${idx}`,
-                    text: q.text,
-                    options: q.options,
-                    optionImages: {},
-                    correct: q.correct || 'A',
-                    explanation: q.explanation || 'Solution generated by AI.',
-                    solutionImage: ''
-                }));
+STRICT RULES:
+1. Return exactly ${batchCount} questions, not a sample and not fewer.
+2. Every question must have exactly four useful options A, B, C and D.
+3. Exactly one option must be correct.
+4. The correct answer must be based on the actual question, not randomly selected.
+5. Do not use placeholder text such as "Sample question", "Practice Option", "Alternative Option", or generic filler.
+6. Do not repeat questions within this batch.
+7. Write questions suitable for a competitive-exam mock test and keep the difficulty appropriate to the requested topic.
+8. Give a concise but accurate explanation.
+9. If the user requests Odisha Police Constable content, use Odisha/India competitive-exam context where appropriate and cover the requested subject rather than inventing an unrelated topic.
+10. Return JSON only according to the provided schema.`;
+
+                    const result = await callGeminiJson([{ text: generationPrompt }], aiSchema, { maxOutputTokens: 12000 });
+                    const batch = Array.isArray(result?.questions) ? result.questions : [];
+
+                    if (batch.length !== batchCount) {
+                        throw new Error(`AI returned ${batch.length} questions instead of ${batchCount} in batch ${start + 1}-${start + batchCount}.`);
+                    }
+
+                    batch.forEach((q, localIndex) => {
+                        const options = q.options || {};
+                        allQuestions.push({
+                            id: 'q_ai_' + Date.now() + '_' + start + '_' + localIndex + '_' + Math.random().toString(36).slice(2, 7),
+                            text: String(q.text || '').trim(),
+                            options: {
+                                A: String(options.A || '').trim(),
+                                B: String(options.B || '').trim(),
+                                C: String(options.C || '').trim(),
+                                D: String(options.D || '').trim()
+                            },
+                            optionImages: {},
+                            correct: String(q.correct || '').trim().toUpperCase(),
+                            explanation: String(q.explanation || '').trim(),
+                            solutionImage: '',
+                            source: 'Gemini AI Generator',
+                            answerSource: 'AI generated and verified',
+                            confidence: String(q.confidence || 'medium').toLowerCase(),
+                            needsReview: false
+                        });
+                    });
+                }
+
+                const valid = allQuestions.filter(q =>
+                    q.text && q.options.A && q.options.B && q.options.C && q.options.D && ['A','B','C','D'].includes(q.correct)
+                );
+                if (valid.length !== requestedCount) {
+                    throw new Error(`Only ${valid.length} of ${requestedCount} generated questions passed validation. Nothing was added.`);
+                }
 
                 if (!test.questions) test.questions = [];
-                test.questions.push(...formattedQuestions);
-
+                test.questions.push(...valid);
                 saveData();
-                renderStudentMocks();
                 renderAdminTests();
+                renderStudentMocks();
 
-                alert(`AI Success: Generated ${formattedQuestions.length} unique questions into "${test.title}"!`);
-            } catch (err) {
-                alert("AI Generation Notice: " + err.message);
-            } finally {
                 spinner.classList.add('hidden');
                 closeAiGeneratorModal();
+                alert(`Successfully generated and attached ${valid.length} real AI questions to the test.`);
+            } catch (error) {
+                console.error('AI generation error:', error);
+                spinner.classList.add('hidden');
+                alert('AI question generation failed: ' + (error?.message || error));
+            } finally {
+                if (button) button.disabled = false;
             }
         }
 
+        // =========================
+        // GEMINI + ROBUST PDF QUESTION IMPORTER
+        // =========================
+        // Gemini models are tried in order. If one model is temporarily overloaded,
+        // the next supported model is used automatically. This is especially useful
+        // for PDF extraction because the Flash-Lite models also support PDF input.
+        const GEMINI_MODELS = [
+            'gemini-3.8-flash',
+            'gemini-3.7-flash',
+            'gemini-3.6-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-3.1-flash-lite'
+        ];
+        const GEMINI_KEY_STORAGE = 'lms_gemini_api_key';
 
-// --- AI AUTOMATED PDF QUESTION SCANNER & AUTO-CORRECTOR ENGINE ---
-        async function auditAndAutoFixCurrentTestWithAI() {
-            const testId = document.getElementById('targetTestId').value;
-            const test = appData.tests.find(t => t.id === testId);
+        function getGeminiApiKey() {
+            let key = localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+            if (!key) {
+                key = prompt('Enter your NEW Gemini API key for Admin AI features.\n\nDo not share this key publicly.');
+                if (key) {
+                    key = key.trim();
+                    localStorage.setItem(GEMINI_KEY_STORAGE, key);
+                }
+            }
+            return key || '';
+        }
 
-            if (!test || !test.questions || test.questions.length === 0) {
-                alert("No questions to audit in this paper.");
+        function configureGeminiApiKey() {
+            const current = localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+            const key = prompt('Paste your NEW Gemini API key.\n\nCurrent key: ' + (current ? 'Configured' : 'Not configured'), '');
+            if (key === null) return;
+            const clean = key.trim();
+            if (!clean) {
+                localStorage.removeItem(GEMINI_KEY_STORAGE);
+                alert('Gemini API key removed from this browser.');
                 return;
             }
+            localStorage.setItem(GEMINI_KEY_STORAGE, clean);
+            alert('Gemini API key saved for this browser.');
+        }
 
-            const statusBanner = document.getElementById('aiAuditStatus');
-            const statusText = document.getElementById('aiAuditText');
-            statusBanner.classList.remove('hidden');
-            statusText.innerText = `AI is auditing and correcting ${test.questions.length} questions from PDF...`;
+        function base64FromArrayBuffer(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const chunkSize = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)));
+            }
+            return btoa(binary);
+        }
+
+        function extractGeminiJson(raw) {
+            if (!raw) throw new Error('Gemini returned an empty response.');
+            let text = String(raw).trim();
+            text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+            try { return JSON.parse(text); } catch (_) {}
+
+            const first = text.indexOf('{');
+            const last = text.lastIndexOf('}');
+            if (first >= 0 && last > first) {
+                try { return JSON.parse(text.slice(first, last + 1)); } catch (_) {}
+            }
+            const a = text.indexOf('[');
+            const b = text.lastIndexOf(']');
+            if (a >= 0 && b > a) {
+                try { return JSON.parse(text.slice(a, b + 1)); } catch (_) {}
+            }
+            throw new Error('Gemini response was not valid JSON.');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function isRetryableGeminiError(status, message) {
+            const text = String(message || '').toLowerCase();
+            return [408, 429, 500, 502, 503, 504].includes(Number(status)) ||
+                   text.includes('high demand') ||
+                   text.includes('temporarily overloaded') ||
+                   text.includes('service unavailable') ||
+                   text.includes('resource exhausted') ||
+                   text.includes('rate limit');
+        }
+
+        async function callGeminiJson(parts, schema, options = {}) {
+            const apiKey = getGeminiApiKey();
+            if (!apiKey) throw new Error('Gemini API key is not configured. Click AI Key in Admin and add a new key.');
+
+            let lastError = null;
+            const models = Array.isArray(options.models) && options.models.length ? options.models : GEMINI_MODELS;
+            const maxRetriesPerModel = Number.isInteger(options.maxRetriesPerModel) ? options.maxRetriesPerModel : 1;
+
+            for (let modelIndex = 0; modelIndex < models.length; modelIndex++) {
+                const model = models[modelIndex];
+
+                for (let attempt = 0; attempt <= maxRetriesPerModel; attempt++) {
+                    try {
+                        if (attempt > 0) {
+                            // Google recommends exponential backoff for transient 429/5xx errors.
+                            const delay = Math.min(8000, 1200 * Math.pow(2, attempt - 1)) + Math.floor(Math.random() * 500);
+                            await sleep(delay);
+                        }
+
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                        const body = {
+                            contents: [{ role: 'user', parts }],
+                            generationConfig: {
+                                responseMimeType: 'application/json',
+                                responseSchema: schema,
+                                maxOutputTokens: options.maxOutputTokens || 12000,
+                                temperature: options.temperature ?? 0.2
+                            }
+                        };
+
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(body)
+                        });
+
+                        let data = {};
+                        try { data = await response.json(); } catch (_) {}
+
+                        if (!response.ok) {
+                            const message = data?.error?.message || `Gemini request failed (${response.status})`;
+                            const error = new Error(message);
+                            error.status = response.status;
+                            error.model = model;
+                            throw error;
+                        }
+
+                        const raw = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+                        if (!raw) {
+                            const reason = data?.candidates?.[0]?.finishReason || 'unknown';
+                            const error = new Error('Gemini returned no usable content. Finish reason: ' + reason);
+                            error.status = 503;
+                            error.model = model;
+                            throw error;
+                        }
+
+                        console.log(`Gemini request succeeded with ${model}`);
+                        return extractGeminiJson(raw);
+                    } catch (error) {
+                        lastError = error;
+                        const retryable = isRetryableGeminiError(error?.status, error?.message);
+                        if (!retryable) throw error;
+
+                        console.warn(`Gemini ${model} attempt ${attempt + 1} failed; trying again/fallback.`, error?.message);
+                    }
+                }
+            }
+
+            throw new Error(
+                'All configured Gemini models are temporarily busy or rate-limited. ' +
+                'The website automatically tried multiple supported models. Please wait a little and try again. ' +
+                (lastError?.message ? 'Last error: ' + lastError.message : '')
+            );
+        }
+
+        function normalizeImportedQuestion(q, index) {
+            const options = q.options || {};
+            const clean = value => String(value ?? '').trim();
+            let correct = String(q.correct || '').trim().toUpperCase().replace(/[^ABCD]/g, '').slice(0, 1);
+            if (!['A','B','C','D'].includes(correct)) correct = '';
+
+            const optionImages = q.optionImages && typeof q.optionImages === 'object' ? q.optionImages : {};
+            const needsReview = Boolean(q.needsReview) || !correct || !clean(q.text) || ['A','B','C','D'].some(k => !clean(options[k]));
+
+            return {
+                id: 'q_pdf_' + Date.now() + '_' + index + '_' + Math.random().toString(36).slice(2, 7),
+                text: clean(q.text),
+                options: { A: clean(options.A), B: clean(options.B), C: clean(options.C), D: clean(options.D) },
+                optionImages,
+                correct,
+                explanation: clean(q.explanation),
+                solutionImage: clean(q.solutionImage),
+                source: 'PDF + Gemini OCR/AI',
+                answerSource: clean(q.answerSource) || (correct ? 'AI / answer key' : 'Not determined'),
+                confidence: clean(q.confidence) || (needsReview ? 'low' : 'medium'),
+                needsReview
+            };
+        }
+
+        function pdfQuestionSchema() {
+            return {
+                type: 'object',
+                properties: {
+                    questions: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                text: { type: 'string' },
+                                options: {
+                                    type: 'object',
+                                    properties: {
+                                        A: {type:'string'}, B: {type:'string'}, C: {type:'string'}, D: {type:'string'}
+                                    },
+                                    required: ['A','B','C','D']
+                                },
+                                correct: { type: 'string' },
+                                explanation: { type: 'string' },
+                                answerSource: { type: 'string' },
+                                confidence: { type: 'string' },
+                                needsReview: { type: 'boolean' }
+                            },
+                            required: ['text','options','correct','explanation','answerSource','confidence','needsReview']
+                        }
+                    }
+                },
+                required: ['questions']
+            };
+        }
+
+        function openUploadPdfModal(testId) {
+            const target = document.getElementById('pdfTargetTestId');
+            const modal = document.getElementById('uploadPdfModal');
+            if (!target || !modal) return alert('PDF importer UI is missing from this page.');
+            target.value = testId;
+            modal.classList.remove('hidden');
+        }
+
+        function closeUploadPdfModal() {
+            const modal = document.getElementById('uploadPdfModal');
+            if (modal) modal.classList.add('hidden');
+            const input = document.getElementById('pdfFileInput');
+            if (input) input.value = '';
+        }
+
+        async function handlePdfImport(e) {
+            if (e) e.preventDefault();
+            const testId = document.getElementById('pdfTargetTestId')?.value;
+            const fileInput = document.getElementById('pdfFileInput');
+            const progress = document.getElementById('pdfProgress');
+            const test = appData.tests.find(t => t.id === testId);
+
+            if (!test) return alert('Target mock test was not found. Please close and reopen PDF Import.');
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) return alert('Please choose a PDF.');
+
+            const file = fileInput.files[0];
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return alert('Please select a valid PDF file.');
+            if (file.size > 50 * 1024 * 1024) return alert('This PDF is larger than 50 MB. Please use a smaller PDF.');
+
+            if (progress) {
+                progress.classList.remove('hidden');
+                progress.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Uploading PDF to Gemini and extracting every question...';
+            }
 
             try {
-                const systemPrompt = `You are an expert academic proofreader and subject specialist for competitive entrance exams in Odisha (${test.category || 'Odisha Police'}).
-You will receive an array of multiple-choice questions extracted from a PDF.
-Inspect each question:
-1. Fix any typos or scanning formatting errors in the question text or options.
-2. Verify the correct answer choice ('A', 'B', 'C', or 'D'). If the correct answer key in the provided object is wrong, fix it to the actual correct option.
-3. Provide a clear, accurate explanation.
+                const buffer = await file.arrayBuffer();
+                const base64 = base64FromArrayBuffer(buffer);
 
-OUTPUT FORMAT REQUIREMENTS:
-Output ONLY a valid JSON Array with the corrected objects matching this structure:
-[
-  {
-    "id": "original_question_id",
-    "text": "Corrected question text",
-    "options": {
-      "A": "Option A",
-      "B": "Option B",
-      "C": "Option C",
-      "D": "Option D"
-    },
-    "correct": "A",
-    "explanation": "Accurate detailed explanation"
-  }
-]`;
+                const prompt = `You are a strict exam-paper extraction engine. Extract EVERY multiple-choice question from the supplied PDF.
 
-                const questionsPayload = test.questions.map(q => ({
-                    id: q.id,
-                    text: q.text,
-                    options: q.options,
-                    correct: q.correct,
-                    explanation: q.explanation
-                }));
+RULES:
+1. Preserve the original question wording as closely as possible. Do not summarize or invent text.
+2. Extract four options A, B, C and D whenever the paper provides four options. Remove labels like A., (A), B., etc. from option text.
+3. Read the entire PDF, including answer-key pages at the end. Map answer-key question numbers to the correct A/B/C/D answer carefully.
+4. If there is no explicit answer key, solve only when you are genuinely confident. Otherwise correct must be empty and needsReview=true.
+5. NEVER invent a correct answer just to fill the field.
+6. Preserve the original question order and do not skip questions.
+7. Ignore headers, footers, page numbers, advertisements, candidate instructions and unrelated text.
+8. Join questions correctly when they continue across pages.
+9. Use visual/OCR understanding for scanned or image-only pages.
+10. Return JSON only according to the schema.
+11. Do not return a sample. Return all questions found in the PDF.`;
 
-                const correctedArray = await fetchGeminiWithFallback(JSON.stringify(questionsPayload), systemPrompt);
+                const result = await callGeminiJson([
+                    { text: prompt },
+                    { inlineData: { mimeType: 'application/pdf', data: base64 } }
+                ], pdfQuestionSchema(), { maxOutputTokens: 60000 });
 
-                let fixCount = 0;
-                correctedArray.forEach(fixedQ => {
-                    const original = test.questions.find(q => q.id === fixedQ.id);
-                    if (original) {
-                        original.text = fixedQ.text;
-                        original.options = fixedQ.options;
-                        original.correct = fixedQ.correct;
-                        original.explanation = fixedQ.explanation;
-                        fixCount++;
-                    }
-                });
+                const extracted = Array.isArray(result?.questions) ? result.questions : [];
+                if (!extracted.length) throw new Error('Gemini did not find any multiple-choice questions in this PDF.');
 
-                saveData();
-                renderAdminQuestionsList(testId);
-                alert(`AI Audit Complete! Audited and verified ${fixCount} questions for 100% accuracy.`);
-            } catch (err) {
-                alert("AI Audit Notification: " + err.message);
-            } finally {
-                statusBanner.classList.add('hidden');
-            }
-        }
+                const normalized = extracted
+                    .map(normalizeImportedQuestion)
+                    .filter(q => q.text && q.options.A && q.options.B && q.options.C && q.options.D);
 
-        // --- ENHANCED EASY ADMIN QUESTION MANAGEMENT SYSTEM ---
-        function openManageQuestionsModal(testId) {
-            const test = appData.tests.find(t => t.id === testId);
-            if (!test) return;
+                if (!normalized.length) throw new Error('Questions were detected, but their structure could not be safely imported.');
 
-            document.getElementById('targetTestId').value = testId;
-            const searchInput = document.getElementById('adminQSearchInput');
-            if (searchInput) searchInput.value = '';
-
-            renderAdminQuestionsList(testId);
-            document.getElementById('manageQuestionsModal').classList.remove('hidden');
-        }
-
-        function filterAdminQuestionsList() {
-            const testId = document.getElementById('targetTestId').value;
-            const query = (document.getElementById('adminQSearchInput').value || '').toLowerCase();
-            renderAdminQuestionsList(testId, query);
-        }
-
-        function renderAdminQuestionsList(testId, searchQuery = '') {
-            const test = appData.tests.find(t => t.id === testId);
-            if (!test) return;
-
-            const container = document.getElementById('questionsManageList');
-            const totalText = document.getElementById('manageQTotalCountText');
-
-            if (!test.questions || test.questions.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No questions found in this test. Add questions or import PDF paper.</p>`;
-                if (totalText) totalText.innerText = 'Total Questions: 0';
-                return;
-            }
-
-            if (totalText) totalText.innerText = `Total Questions: ${test.questions.length}`;
-
-            let listToDisplay = test.questions;
-            if (searchQuery) {
-                listToDisplay = test.questions.filter((q, idx) => 
-                    (idx + 1).toString() === searchQuery ||
-                    q.text.toLowerCase().includes(searchQuery) ||
-                    (q.explanation && q.explanation.toLowerCase().includes(searchQuery))
-                );
-            }
-
-            if (listToDisplay.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No questions matching your search "${searchQuery}".</p>`;
-                return;
-            }
-
-            container.innerHTML = listToDisplay.map((q, idx) => {
-                const realIndex = test.questions.findIndex(item => item.id === q.id) + 1;
-                return `
-                    <div id="q_card_${realIndex}" class="p-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl space-y-2 transition-all">
-                        <div class="flex justify-between items-start gap-2">
-                            <div class="font-bold text-xs text-slate-800 dark:text-slate-100">
-                                <span class="inline-block bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded mr-1.5">Q${realIndex}</span>
-                                ${q.text}
-                            </div>
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <!-- Quick Inline Answer Changer -->
-                                <span class="text-[10px] font-bold text-slate-400">Ans:</span>
-                                <select onchange="updateQuestionCorrectAnswer('${testId}', '${q.id}', this.value)" class="text-[10px] font-bold px-1.5 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded cursor-pointer">
-                                    <option value="A" ${q.correct === 'A' ? 'selected' : ''}>A</option>
-                                    <option value="B" ${q.correct === 'B' ? 'selected' : ''}>B</option>
-                                    <option value="C" ${q.correct === 'C' ? 'selected' : ''}>C</option>
-                                    <option value="D" ${q.correct === 'D' ? 'selected' : ''}>D</option>
-                                </select>
-                                <button onclick="editQuestion('${testId}', '${q.id}')" class="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded hover:bg-blue-500">Edit</button>
-                                <button onclick="deleteQuestion('${testId}', '${q.id}')" class="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded hover:bg-red-500">Delete</button>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                            ${Object.entries(q.options || {}).map(([k, v]) => `
-                                <div class="p-1.5 rounded border ${k === q.correct ? 'bg-emerald-100 border-emerald-300 font-bold text-emerald-800' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600'}">
-                                    ${k}. ${v}
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        ${q.explanation ? `<p class="text-[10px] text-slate-500 italic">Solution: ${q.explanation}</p>` : ''}
-                        ${q.solutionImage ? `<img src="${q.solutionImage}" class="max-h-24 rounded border border-slate-300">` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateQuestionCorrectAnswer(testId, qId, newAnswer) {
-            const test = appData.tests.find(t => t.id === testId);
-            if (!test) return;
-            const q = test.questions.find(item => item.id === qId);
-            if (q) {
-                q.correct = newAnswer;
-                saveData();
-                renderAdminQuestionsList(testId, (document.getElementById('adminQSearchInput')?.value || ''));
-            }
-        }
-
-        function jumpToQIndex(indexNumber) {
-            const targetCard = document.getElementById(`q_card_${indexNumber}`);
-            if (targetCard) {
-                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                targetCard.classList.add('ring-2', 'ring-blue-500');
-                setTimeout(() => targetCard.classList.remove('ring-2', 'ring-blue-500'), 2000);
-            } else {
-                alert(`Question #${indexNumber} does not exist in this test paper yet.`);
-            }
-        }
-
-        function clearAllQuestionsForTest() {
-            const testId = document.getElementById('targetTestId').value;
-            const test = appData.tests.find(t => t.id === testId);
-            if (!test) return;
-
-            if (confirm(`Are you sure you want to delete ALL questions in "${test.title}"?`)) {
-                test.questions = [];
+                if (!test.questions) test.questions = [];
+                test.questions.push(...normalized);
                 saveData();
                 renderAdminTests();
-                renderAdminQuestionsList(testId);
+                renderStudentMocks();
+
+                if (progress) progress.classList.add('hidden');
+                closeUploadPdfModal();
+                currentEditingTestId = testId;
+                document.getElementById('manageQuestionsModal').classList.remove('hidden');
+                renderAdminQuestionsList();
+
+                const reviewCount = normalized.filter(q => q.needsReview || !q.correct).length;
+                alert(`Imported ${normalized.length} questions successfully. ${reviewCount} question(s) need answer review.`);
+            } catch (error) {
+                console.error('PDF import error:', error);
+                if (progress) progress.classList.add('hidden');
+                alert('PDF import failed: ' + (error?.message || error));
             }
         }
 
@@ -2597,101 +2900,230 @@ Output ONLY a valid JSON Array with the corrected objects matching this structur
             document.getElementById('manageQuestionsModal').classList.add('hidden');
         }
 
-        function editQuestion(testId, qId) {
+        function renderAdminQuestionsList() {
+            const container = document.getElementById('questionsManageList');
+            const test = appData.tests.find(t => t.id === currentEditingTestId);
+
+            if (!test || !test.questions || test.questions.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs font-semibold">No questions added to this test yet.</div>`;
+                document.getElementById('manageQTotalCountText').innerText = 'Total Questions: 0';
+                return;
+            }
+
+            document.getElementById('manageQTotalCountText').innerText = `Total Questions: ${test.questions.length}`;
+
+            const safe = value => String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+            const answerButtons = (q, idx) => ['A','B','C','D'].map(letter => `
+                <button type="button" onclick="setQuestionCorrectAnswer(${idx}, '${letter}')"
+                    class="px-2 py-1 rounded-md text-[10px] font-extrabold border transition ${q.correct === letter ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-600 hover:border-emerald-500'}">${letter}</button>
+            `).join('');
+
+            container.innerHTML = test.questions.map((q, idx) => {
+                const review = q.needsReview || !q.correct || q.confidence === 'low';
+                return `
+                <div id="qItem_${idx + 1}" class="${review ? 'ring-1 ring-amber-300 bg-amber-50/60 dark:bg-amber-950/20' : 'bg-slate-50 dark:bg-slate-700/50'} p-3.5 rounded-xl border border-slate-200 dark:border-slate-600 text-xs space-y-2">
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                                <span class="font-black text-blue-600">#${idx + 1}</span>
+                                ${review ? '<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold text-[9px]">REVIEW ANSWER</span>' : '<span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold text-[9px]">READY</span>'}
+                                ${q.answerSource ? `<span class="text-[9px] text-slate-400">${safe(q.answerSource)}</span>` : ''}
+                            </div>
+                            <div class="font-bold text-slate-800 dark:text-slate-100 leading-relaxed">${safe(q.text)}</div>
+                        </div>
+                        <div class="flex gap-1.5 shrink-0">
+                            <button onclick="editSingleQuestion('${test.id}', '${q.id}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] px-2 py-1 rounded">Edit</button>
+                            <button onclick="deleteSingleQuestion('${test.id}', '${q.id}')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-[10px] px-2 py-1 rounded">Delete</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-600 dark:text-slate-300">
+                        <div class="p-1.5 rounded bg-white/70 dark:bg-slate-800/50">A: ${safe(q.options?.A)}</div>
+                        <div class="p-1.5 rounded bg-white/70 dark:bg-slate-800/50">B: ${safe(q.options?.B)}</div>
+                        <div class="p-1.5 rounded bg-white/70 dark:bg-slate-800/50">C: ${safe(q.options?.C)}</div>
+                        <div class="p-1.5 rounded bg-white/70 dark:bg-slate-800/50">D: ${safe(q.options?.D)}</div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-bold text-slate-500">Correct:</span>
+                            ${answerButtons(q, idx)}
+                            <span class="text-[9px] text-slate-400 ml-1">${q.confidence ? 'AI confidence: ' + safe(q.confidence) : ''}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 truncate max-w-md">${q.explanation ? 'Explanation: ' + safe(q.explanation) : 'No explanation imported'}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function setQuestionCorrectAnswer(index, letter) {
+            const test = appData.tests.find(t => t.id === currentEditingTestId);
+            if (!test || !test.questions || !test.questions[index]) return;
+            test.questions[index].correct = letter;
+            test.questions[index].needsReview = false;
+            test.questions[index].answerSource = 'Admin verified';
+            test.questions[index].confidence = 'high';
+            saveData();
+            renderAdminQuestionsList();
+            renderAdminTests();
+        }
+
+        function filterAdminQuestionsList() {
+            const search = document.getElementById('adminQSearchInput').value.toLowerCase();
+            const test = appData.tests.find(t => t.id === currentEditingTestId);
+            if (!test || !test.questions) return;
+
+            test.questions.forEach((q, idx) => {
+                const elem = document.getElementById(`qItem_${idx + 1}`);
+                if (elem) {
+                    const matches = q.text.toLowerCase().includes(search) || (idx + 1).toString() === search;
+                    elem.style.display = matches ? 'block' : 'none';
+                }
+            });
+        }
+
+        function jumpToQIndex(index) {
+            const elem = document.getElementById(`qItem_${index}`);
+            if (elem) {
+                elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                elem.classList.add('ring-2', 'ring-blue-500');
+                setTimeout(() => elem.classList.remove('ring-2', 'ring-blue-500'), 2000);
+            }
+        }
+
+        async function auditAndAutoFixCurrentTestWithAI() {
+            const test = appData.tests.find(t => t.id === currentEditingTestId);
+            if (!test || !test.questions?.length) return alert('There are no questions to audit.');
+
+            const status = document.getElementById('aiAuditStatus');
+            const statusText = document.getElementById('aiAuditText');
+            status.classList.remove('hidden');
+            statusText.textContent = 'AI is checking question structure, options and answer accuracy...';
+
+            try {
+                // Audit in manageable batches so a 100-question mock remains reliable.
+                const batchSize = 20;
+                let changed = 0;
+                let reviewed = 0;
+
+                for (let start = 0; start < test.questions.length; start += batchSize) {
+                    const batch = test.questions.slice(start, start + batchSize);
+                    statusText.textContent = `AI is auditing questions ${start + 1}-${start + batch.length} of ${test.questions.length}...`;
+
+                    const questionPayload = batch.map((q, i) => ({
+                        number: start + i + 1,
+                        question: q.text,
+                        options: q.options,
+                        currentAnswer: q.correct || ''
+                    }));
+
+                    const schema = {
+                        type: 'object',
+                        properties: {
+                            results: { type: 'array', items: {
+                                type: 'object',
+                                properties: {
+                                    number: {type:'integer'},
+                                    correct: {type:'string', enum:['A','B','C','D','']},
+                                    explanation: {type:'string'},
+                                    confidence: {type:'string', enum:['high','medium','low']},
+                                    needsReview: {type:'boolean'}
+                                },
+                                required:['number','correct','explanation','confidence','needsReview']
+                            }}
+                        },
+                        required:['results']
+                    };
+
+                    const result = await callGeminiJson([{text:`Audit these multiple-choice exam questions.
+
+Use the existing answer only as a candidate. Independently verify the correct answer from the question and four options. If the current answer is already correct, keep it. If you are uncertain, do NOT guess: set correct to an empty string and needsReview=true. Give a concise explanation. Return JSON only.
+
+${JSON.stringify(questionPayload)}`}], schema, {maxOutputTokens:12000});
+
+                    (result.results || []).forEach(item => {
+                        const localIndex = Number(item.number) - 1;
+                        const q = test.questions[localIndex];
+                        if (!q) return;
+                        const answer = String(item.correct || '').toUpperCase();
+                        if (['A','B','C','D'].includes(answer) && q.correct !== answer) {
+                            q.correct = answer;
+                            changed++;
+                        }
+                        if (item.explanation) q.explanation = item.explanation;
+                        q.confidence = item.confidence || q.confidence || 'medium';
+                        q.needsReview = Boolean(item.needsReview) || !['A','B','C','D'].includes(q.correct || '');
+                        q.answerSource = 'AI audit';
+                        reviewed++;
+                    });
+                }
+
+                saveData();
+                renderAdminQuestionsList();
+                renderAdminTests();
+                status.classList.add('hidden');
+                const remaining = test.questions.filter(q => q.needsReview || !q.correct).length;
+                alert(`AI audit finished. ${reviewed} questions checked, ${changed} answer(s) updated. ${remaining} question(s) still require admin review.`);
+            } catch (error) {
+                console.error('AI audit failed:', error);
+                status.classList.add('hidden');
+                alert('AI audit failed: ' + (error?.message || error));
+            }
+        }
+
+        function clearAllQuestionsForTest() {
+            if (confirm("Are you sure you want to delete all questions for this test?")) {
+                const test = appData.tests.find(t => t.id === currentEditingTestId);
+                if (test) {
+                    test.questions = [];
+                    saveData();
+                    renderAdminQuestionsList();
+                    renderAdminTests();
+                }
+            }
+        }
+
+        function editSingleQuestion(testId, qId) {
             const test = appData.tests.find(t => t.id === testId);
             if (!test) return;
+
             const q = test.questions.find(item => item.id === qId);
             if (!q) return;
 
             document.getElementById('targetTestId').value = testId;
             document.getElementById('editingQuestionId').value = qId;
-            document.getElementById('questionModalTitle').innerText = 'Edit Question';
-
-            document.getElementById('qText').value = q.text || '';
-            document.getElementById('qOptA').value = q.options?.A || '';
-            document.getElementById('qOptB').value = q.options?.B || '';
-            document.getElementById('qOptC').value = q.options?.C || '';
-            document.getElementById('qOptD').value = q.options?.D || '';
-
-            document.getElementById('qOptA_Img').value = q.optionImages?.A || '';
-            document.getElementById('qOptB_Img').value = q.optionImages?.B || '';
-            document.getElementById('qOptC_Img').value = q.optionImages?.C || '';
-            document.getElementById('qOptD_Img').value = q.optionImages?.D || '';
-
-            document.getElementById('qCorrect').value = q.correct || 'A';
+            document.getElementById('qText').value = q.text;
+            document.getElementById('qOptA').value = q.options.A;
+            document.getElementById('qOptB').value = q.options.B;
+            document.getElementById('qOptC').value = q.options.C;
+            document.getElementById('qOptD').value = q.options.D;
+            document.getElementById('qCorrect').value = q.correct;
             document.getElementById('qExplanation').value = q.explanation || '';
-            document.getElementById('qSolutionImg').value = q.solutionImage || '';
 
-            closeManageQuestionsModal();
             document.getElementById('addQuestionModal').classList.remove('hidden');
         }
 
-        function deleteQuestion(testId, qId) {
-            if (confirm("Delete this question?")) {
-                const test = appData.tests.find(t => t.id === testId);
-                if (test && test.questions) {
-                    test.questions = test.questions.filter(q => q.id !== qId);
-                    saveData();
-                    renderAdminTests();
-                    renderAdminQuestionsList(testId, (document.getElementById('adminQSearchInput')?.value || ''));
-                }
-            }
-        }
-
-        function deleteTest(testId) {
-            if (confirm("Delete this test?")) {
-                appData.tests = appData.tests.filter(t => t.id !== testId);
-                if (isFirebaseInitialized) db.ref(`tests/${testId}`).remove();
+        function deleteSingleQuestion(testId, qId) {
+            const test = appData.tests.find(t => t.id === testId);
+            if (test) {
+                test.questions = test.questions.filter(q => q.id !== qId);
                 saveData();
-                populateCategoryFilters();
-                renderStudentMocks();
+                renderAdminQuestionsList();
                 renderAdminTests();
             }
         }
 
-        function openAddQuestionModal(testId) {
-            document.getElementById('targetTestId').value = testId;
-            document.getElementById('editingQuestionId').value = '';
-            document.getElementById('questionModalTitle').innerText = 'Add Question to Mock Test';
-            
-            document.getElementById('qText').value = '';
-            document.getElementById('qOptA').value = '';
-            document.getElementById('qOptB').value = '';
-            document.getElementById('qOptC').value = '';
-            document.getElementById('qOptD').value = '';
-            document.getElementById('qOptA_Img').value = '';
-            document.getElementById('qOptB_Img').value = '';
-            document.getElementById('qOptC_Img').value = '';
-            document.getElementById('qOptD_Img').value = '';
-            document.getElementById('qCorrect').value = 'A';
-            document.getElementById('qExplanation').value = '';
-            document.getElementById('qSolutionImg').value = '';
-
-            document.getElementById('addQuestionModal').classList.remove('hidden');
-        }
-
-        function closeAddQuestionModal() { document.getElementById('addQuestionModal').classList.add('hidden'); }
-
-        function handleImageUpload(e, targetFieldId) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                document.getElementById(targetFieldId).value = evt.target.result;
-            };
-            reader.readAsDataURL(file);
+        function closeAddQuestionModal() {
+            document.getElementById('addQuestionModal').classList.add('hidden');
         }
 
         function handleAddQuestion(e) {
             e.preventDefault();
             const testId = document.getElementById('targetTestId').value;
             const qId = document.getElementById('editingQuestionId').value;
+
             const test = appData.tests.find(t => t.id === testId);
-
             if (!test) return;
-            if (!test.questions) test.questions = [];
 
-            const questionPayload = {
+            const qObj = {
                 id: qId || ('q_' + Date.now()),
                 text: document.getElementById('qText').value.trim(),
                 options: {
@@ -2700,12 +3132,7 @@ Output ONLY a valid JSON Array with the corrected objects matching this structur
                     C: document.getElementById('qOptC').value.trim(),
                     D: document.getElementById('qOptD').value.trim()
                 },
-                optionImages: {
-                    A: document.getElementById('qOptA_Img').value.trim(),
-                    B: document.getElementById('qOptB_Img').value.trim(),
-                    C: document.getElementById('qOptC_Img').value.trim(),
-                    D: document.getElementById('qOptD_Img').value.trim()
-                },
+                optionImages: {},
                 correct: document.getElementById('qCorrect').value,
                 explanation: document.getElementById('qExplanation').value.trim(),
                 solutionImage: document.getElementById('qSolutionImg').value.trim()
@@ -2713,122 +3140,27 @@ Output ONLY a valid JSON Array with the corrected objects matching this structur
 
             if (qId) {
                 const idx = test.questions.findIndex(q => q.id === qId);
-                if (idx !== -1) test.questions[idx] = questionPayload;
+                if (idx !== -1) test.questions[idx] = qObj;
             } else {
-                test.questions.push(questionPayload);
+                if (!test.questions) test.questions = [];
+                test.questions.push(qObj);
             }
 
             saveData();
-            renderStudentMocks();
-            renderAdminTests();
             closeAddQuestionModal();
+            renderAdminQuestionsList();
+            renderAdminTests();
         }
 
-        function openUploadPdfModal(testId) {
-            document.getElementById('pdfTargetTestId').value = testId;
-            document.getElementById('uploadPdfModal').classList.remove('hidden');
-        }
-
-        function closeUploadPdfModal() { document.getElementById('uploadPdfModal').classList.add('hidden'); }
-
-        async function handlePdfImport(e) {
-            e.preventDefault();
-            const fileInput = document.getElementById('pdfFileInput');
-            const testId = document.getElementById('pdfTargetTestId').value;
-            const progress = document.getElementById('pdfProgress');
-
-            if (!fileInput.files || fileInput.files.length === 0) return;
-
-            progress.classList.remove('hidden');
-            const file = fileInput.files[0];
-
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let fullText = '';
-
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map(item => item.str).join(' ');
-                    fullText += pageText + '\n';
-                }
-
-                const extractedQuestions = parseQuestionsFromText(fullText);
-
-                if (extractedQuestions.length === 0) {
-                    alert("Could not automatically parse structured questions. Please verify your PDF format.");
-                } else {
-                    const test = appData.tests.find(t => t.id === testId);
-                    if (test) {
-                        if (!test.questions) test.questions = [];
-                        test.questions.push(...extractedQuestions);
-                        saveData();
-                        renderStudentMocks();
-                        renderAdminTests();
-                        alert(`Successfully extracted ${extractedQuestions.length} questions from PDF! Click "AI Audit & Auto-Fix" in Question Manager to verify exact answers.`);
-                    }
-                }
-            } catch (err) {
-                alert("Error reading PDF file: " + err.message);
-            } finally {
-                progress.classList.add('hidden');
-                closeUploadPdfModal();
+        function handleImageUpload(event, targetInputId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(targetInputId).value = e.target.result;
+                };
+                reader.readAsDataURL(file);
             }
-        }
-
-        // --- ENHANCED PDF EXACT EXTRACTOR ENGINE ---
-        function parseQuestionsFromText(text) {
-            const questions = [];
-            const cleanText = text.replace(/\r\n/g, '\n').replace(/\t/g, ' ');
-
-            const blocks = cleanText.split(/(?=(?:Q(?:uestion)?\s*[\.\:\-\_]?\s*\d+[\.\:\)]|\b\d{1,3}[\.\:\)]\s+[A-Z]))/gi);
-
-            blocks.forEach((block, idx) => {
-                const cleanBlock = block.trim();
-                if (cleanBlock.length < 10) return;
-
-                const optAMatch = cleanBlock.match(/(?:\(A\)|A\)|A\.)\s*(.*?)(?=\s*(?:\(B\)|B\)|B\.)|$)/i);
-                const optBMatch = cleanBlock.match(/(?:\(B\)|B\)|B\.)\s*(.*?)(?=\s*(?:\(C\)|C\)|C\.)|$)/i);
-                const optCMatch = cleanBlock.match(/(?:\(C\)|C\)|C\.)\s*(.*?)(?=\s*(?:\(D\)|D\)|D\.)|$)/i);
-                const optDMatch = cleanBlock.match(/(?:\(D\)|D\)|D\.)\s*(.*?)(?=\s*(?:Answer|Ans|Correct|Solution|Exp|\n\n)|$)/i);
-
-                let correctAns = 'A';
-                const ansMatch = cleanBlock.match(/(?:Answer|Ans|Correct\s*Answer|Correct\s*Option|Option)\s*[\:\=\-\_]?\s*[\(\[]?([A-D])[\)\]]?/i);
-                if (ansMatch) {
-                    correctAns = ansMatch[1].toUpperCase();
-                }
-
-                let explanationText = 'Extracted solution from PDF paper.';
-                const expMatch = cleanBlock.match(/(?:Explanation|Solution|Exp)\s*[\:\=\-\_]?\s*(.*)/i);
-                if (expMatch && expMatch[1].trim()) {
-                    explanationText = expMatch[1].trim();
-                }
-
-                let qText = cleanBlock;
-                if (optAMatch) {
-                    qText = cleanBlock.substring(0, optAMatch.index).replace(/^(?:Q(?:uestion)?\s*[\.\:\-\_]?\s*\d+[\.\:\)]|\b\d{1,3}[\.\:\)]\s*)/i, '').trim();
-                }
-
-                if (qText && optAMatch && optBMatch) {
-                    questions.push({
-                        id: 'q_pdf_' + Date.now() + '_' + idx,
-                        text: qText || `Imported Question ${idx + 1}`,
-                        options: {
-                            A: optAMatch ? optAMatch[1].trim() : 'Option A',
-                            B: optBMatch ? optBMatch[1].trim() : 'Option B',
-                            C: optCMatch ? optCMatch[1].trim() : 'Option C',
-                            D: optDMatch ? optDMatch[1].trim() : 'Option D'
-                        },
-                        optionImages: {},
-                        correct: correctAns,
-                        explanation: explanationText,
-                        solutionImage: ''
-                    });
-                }
-            });
-
-            return questions;
         }
     </script>
 </body>
