@@ -701,8 +701,9 @@
             
             <div class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700">
                 <i class="fa-regular fa-clock text-amber-400 text-xs sm:text-base animate-pulse"></i>
-                <div class="text-[10px] sm:text-xs">
+                <div class="text-[10px] sm:text-xs text-center">
                     <div id="examTimer" class="font-mono text-xs sm:text-base font-bold text-amber-300">00:00:00</div>
+                    <div id="questionTimer" class="font-mono text-[9px] sm:text-[10px] font-bold text-red-300 mt-0.5">Q: 01:00</div>
                 </div>
             </div>
 
@@ -769,6 +770,44 @@
                         <i class="fa-solid fa-circle-check"></i> Submit Exam
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTO QUESTION TIMEOUT SOLUTION MODAL (ADDITIVE FEATURE ONLY) -->
+    <div id="questionTimeoutModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden my-auto border border-red-200 dark:border-red-800">
+            <div class="bg-gradient-to-r from-red-600 to-orange-500 p-4 sm:p-5 text-white relative">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-hourglass-end text-amber-200 text-xl"></i>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-black">1 Minute Completed</h2>
+                        <p id="timeoutQuestionNumber" class="text-[10px] sm:text-xs text-red-100 font-medium">Question time is over.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <div class="bg-slate-50 dark:bg-slate-700/40 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-600">
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Question</p>
+                    <div id="timeoutQuestionText" class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed"></div>
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-950/30 p-3 sm:p-4 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-400 mb-1">Correct Answer</p>
+                    <div id="timeoutCorrectAnswer" class="text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-300"></div>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-950/30 p-3 sm:p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-blue-600 dark:text-blue-400 mb-1">Solution / Shortcut Way</p>
+                    <div id="timeoutExplanation" class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap"></div>
+                </div>
+                <div id="timeoutSolutionImageWrap" class="hidden">
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Solution Image</p>
+                    <img id="timeoutSolutionImage" src="" alt="Solution" class="max-h-64 max-w-full rounded-lg border border-slate-200 dark:border-slate-600 mx-auto">
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                <button id="timeoutNextButton" onclick="continueAfterQuestionTimeout()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg shadow transition flex items-center gap-2">
+                    Next Question <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -1225,6 +1264,12 @@
         let timerInterval = null;
         let timeRemainingSeconds = 0;
 
+        // ADDITIVE FEATURE: one-minute timer for each question.
+        let questionTimerInterval = null;
+        let questionDeadlineById = {};
+        let timedOutQuestionId = null;
+        const QUESTION_TIME_LIMIT_SECONDS = 60;
+
         // FIXED REALTIME DYNAMIC RANKING ENGINE (ISSUE #2)
         // Computes real-time rank for a test attempt based on Score (descending) & Time Taken (ascending tiebreaker)
         function calculateRealtimeRank(testId, score, timeTakenSec) {
@@ -1635,6 +1680,9 @@
             examStatuses = {};
             currentQuestionIdx = 0;
             timeRemainingSeconds = test.timeMinutes * 60;
+            clearInterval(questionTimerInterval);
+            questionDeadlineById = {};
+            timedOutQuestionId = null;
 
             document.getElementById('examTitleHeader').innerText = test.title;
             document.getElementById('examInterface').classList.remove('hidden');
@@ -1660,6 +1708,100 @@
             }, 1000);
         }
 
+        // ADDITIVE FEATURE: starts/resumes exactly one minute for the currently displayed question.
+        function startQuestionTimer() {
+            clearInterval(questionTimerInterval);
+
+            const q = currentExam?.questions?.[currentQuestionIdx];
+            const timerEl = document.getElementById('questionTimer');
+            if (!q || !timerEl) return;
+
+            // Answered/reviewed questions no longer need a countdown.
+            if (examResponses[q.id] || examStatuses[q.id] === 'timedout') {
+                timerEl.innerText = examStatuses[q.id] === 'timedout' ? 'Q: TIME UP' : 'Q: ANSWERED';
+                timerEl.className = 'font-mono text-[9px] sm:text-[10px] font-bold text-emerald-300 mt-0.5';
+                return;
+            }
+
+            if (!questionDeadlineById[q.id]) {
+                questionDeadlineById[q.id] = Date.now() + (QUESTION_TIME_LIMIT_SECONDS * 1000);
+            }
+
+            const tick = () => {
+                if (!currentExam || currentExam.questions[currentQuestionIdx]?.id !== q.id) return;
+
+                const remaining = Math.max(0, Math.ceil((questionDeadlineById[q.id] - Date.now()) / 1000));
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                timerEl.innerText = `Q: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                timerEl.className = `font-mono text-[9px] sm:text-[10px] font-bold mt-0.5 ${remaining <= 10 ? 'text-red-200 animate-pulse' : 'text-red-300'}`;
+
+                if (remaining <= 0) {
+                    clearInterval(questionTimerInterval);
+                    handleQuestionTimeout(q.id);
+                }
+            };
+
+            tick();
+            questionTimerInterval = setInterval(tick, 250);
+        }
+
+        function handleQuestionTimeout(qId) {
+            const q = currentExam?.questions?.find(item => item.id === qId);
+            if (!q || examResponses[qId] || examStatuses[qId] === 'timedout') return;
+
+            examStatuses[qId] = 'timedout';
+            timedOutQuestionId = qId;
+            renderQuestion();
+            renderQuestionPalette();
+            showQuestionTimeoutSolution(q);
+        }
+
+        function showQuestionTimeoutSolution(q) {
+            const modal = document.getElementById('questionTimeoutModal');
+            if (!modal) return;
+
+            document.getElementById('timeoutQuestionNumber').innerText = `Question ${currentQuestionIdx + 1} of ${currentExam.questions.length} — no answer was submitted within 1 minute.`;
+            document.getElementById('timeoutQuestionText').innerHTML = q.text || 'Question text unavailable.';
+            document.getElementById('timeoutCorrectAnswer').innerHTML = q.correct && q.options?.[q.correct]
+                ? `<span class="mr-1">${q.correct}.</span> ${q.options[q.correct]}`
+                : 'Correct answer is not available for this question.';
+            document.getElementById('timeoutExplanation').innerHTML = q.explanation || 'No shortcut/solution explanation has been added for this question yet.';
+
+            const imageWrap = document.getElementById('timeoutSolutionImageWrap');
+            const image = document.getElementById('timeoutSolutionImage');
+            if (q.solutionImage) {
+                image.src = q.solutionImage;
+                imageWrap.classList.remove('hidden');
+            } else {
+                image.src = '';
+                imageWrap.classList.add('hidden');
+            }
+
+            const nextButton = document.getElementById('timeoutNextButton');
+            if (currentQuestionIdx === currentExam.questions.length - 1) {
+                nextButton.innerHTML = 'Finish Test <i class="fa-solid fa-check"></i>';
+            } else {
+                nextButton.innerHTML = 'Next Question <i class="fa-solid fa-arrow-right"></i>';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function continueAfterQuestionTimeout() {
+            document.getElementById('questionTimeoutModal').classList.add('hidden');
+            timedOutQuestionId = null;
+
+            if (currentQuestionIdx === currentExam.questions.length - 1) {
+                submitExam();
+                return;
+            }
+
+            currentQuestionIdx++;
+            renderQuestion();
+            renderQuestionPalette();
+        }
+
         function updateTimerDisplay() {
             const hrs = Math.floor(timeRemainingSeconds / 3600);
             const mins = Math.floor((timeRemainingSeconds % 3600) / 60);
@@ -1676,6 +1818,7 @@
 
             const optsContainer = document.getElementById('optionsContainer');
             const currentSelected = examResponses[q.id];
+            const isQuestionTimedOut = examStatuses[q.id] === 'timedout';
 
             optsContainer.innerHTML = ['A', 'B', 'C', 'D'].map(optKey => {
                 const optText = q.options[optKey];
@@ -1683,8 +1826,8 @@
                 const isChecked = currentSelected === optKey;
 
                 return `
-                    <label onclick="selectOption('${q.id}', '${optKey}')" class="flex items-start gap-3 p-3 rounded-xl border ${isChecked ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-bold' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'} transition cursor-pointer">
-                        <input type="radio" name="qOpt" ${isChecked ? 'checked' : ''} class="mt-0.5 text-blue-600 focus:ring-blue-500">
+                    <label onclick="${isQuestionTimedOut ? '' : `selectOption('${q.id}', '${optKey}')`}" class="flex items-start gap-3 p-3 rounded-xl border ${isChecked ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-bold' : isQuestionTimedOut ? 'border-red-200 bg-red-50/40 dark:bg-red-950/20 opacity-70' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'} transition ${isQuestionTimedOut ? 'cursor-not-allowed' : 'cursor-pointer'}">
+                        <input type="radio" name="qOpt" ${isChecked ? 'checked' : ''} ${isQuestionTimedOut ? 'disabled' : ''} class="mt-0.5 text-blue-600 focus:ring-blue-500">
                         <div class="flex-grow text-xs sm:text-sm">
                             <span class="font-bold mr-1.5">${optKey}.</span> ${optText}
                             ${optImg ? `<img src="${optImg}" class="mt-2 max-h-32 rounded border">` : ''}
@@ -1695,9 +1838,13 @@
 
             document.getElementById('prevQBtn').disabled = currentQuestionIdx === 0;
             document.getElementById('nextQBtn').innerText = (currentQuestionIdx === currentExam.questions.length - 1) ? 'Save & Complete' : 'Save & Next';
+
+            // Start/resume the one-minute timer only after the question has been rendered.
+            startQuestionTimer();
         }
 
         function selectOption(qId, optionKey) {
+            if (examStatuses[qId] === 'timedout') return;
             examResponses[qId] = optionKey;
             examStatuses[qId] = 'answered';
             renderQuestion();
@@ -1706,6 +1853,7 @@
 
         function clearCurrentResponse() {
             const q = currentExam.questions[currentQuestionIdx];
+            if (examStatuses[q.id] === 'timedout') return;
             delete examResponses[q.id];
             delete examStatuses[q.id];
             renderQuestion();
@@ -1714,6 +1862,7 @@
 
         function markForReview() {
             const q = currentExam.questions[currentQuestionIdx];
+            if (examStatuses[q.id] === 'timedout') return;
             examStatuses[q.id] = 'review';
             navigateQuestion(1);
         }
@@ -1738,6 +1887,7 @@
             grid.innerHTML = currentExam.questions.map((q, idx) => {
                 let statusClass = 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
                 if (examResponses[q.id]) statusClass = 'bg-emerald-500 text-white font-bold';
+                else if (examStatuses[q.id] === 'timedout') statusClass = 'bg-red-500 text-white font-bold';
                 else if (examStatuses[q.id] === 'review') statusClass = 'bg-amber-500 text-white font-bold';
                 else if (idx === currentQuestionIdx) statusClass = 'ring-2 ring-blue-600 font-bold bg-slate-300 dark:bg-slate-600';
 
@@ -1758,6 +1908,8 @@
         // SUBMIT EXAM WITH DYNAMIC REAL-TIME RANKING INTEGRATION (ISSUE #2)
         function submitExam() {
             clearInterval(timerInterval);
+            clearInterval(questionTimerInterval);
+            document.getElementById('questionTimeoutModal')?.classList.add('hidden');
             document.getElementById('examInterface').classList.add('hidden');
 
             const totalQ = currentExam.questions.length;
