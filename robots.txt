@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tapan9938.github.io/my-website/sitemap.xml
