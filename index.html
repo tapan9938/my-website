@@ -1305,6 +1305,7 @@
         let questionTimerInterval = null;
         let questionDeadlineById = {};
         let timedOutQuestionId = null;
+        let questionFeedbackMode = 'timeout'; // 'answer' or 'timeout'
         const QUESTION_TIME_LIMIT_SECONDS = 60;
 
         // FIXED REALTIME DYNAMIC RANKING ENGINE (ISSUE #2)
@@ -1720,6 +1721,7 @@
             clearInterval(questionTimerInterval);
             questionDeadlineById = {};
             timedOutQuestionId = null;
+            questionFeedbackMode = 'timeout';
 
             document.getElementById('examTitleHeader').innerText = test.title;
             document.getElementById('examInterface').classList.remove('hidden');
@@ -1789,6 +1791,8 @@
 
             examStatuses[qId] = 'timedout';
             timedOutQuestionId = qId;
+            questionFeedbackMode = 'timeout';
+            clearInterval(timerInterval); // Pause the exam clock while the student reviews the solution.
             renderQuestion();
             renderQuestionPalette();
             showQuestionTimeoutSolution(q);
@@ -1798,7 +1802,13 @@
             const modal = document.getElementById('questionTimeoutModal');
             if (!modal) return;
 
-            document.getElementById('timeoutQuestionNumber').innerText = `Question ${currentQuestionIdx + 1} of ${currentExam.questions.length} — no answer was submitted within 1 minute.`;
+            const isAnswerReview = questionFeedbackMode === 'answer';
+            const selectedAnswer = examResponses[q.id];
+            const heading = modal.querySelector('h2');
+            if (heading) heading.innerText = isAnswerReview ? (selectedAnswer === q.correct ? 'Correct Answer!' : 'Incorrect Answer — Learn the Trick') : '1 Minute Completed';
+            document.getElementById('timeoutQuestionNumber').innerText = isAnswerReview
+                ? `Question ${currentQuestionIdx + 1} of ${currentExam.questions.length} — Your answer: ${selectedAnswer || 'Not answered'}.`
+                : `Question ${currentQuestionIdx + 1} of ${currentExam.questions.length} — no answer was submitted within 1 minute.`;
             document.getElementById('timeoutQuestionText').innerHTML = q.text || 'Question text unavailable.';
             document.getElementById('timeoutCorrectAnswer').innerHTML = q.correct && q.options?.[q.correct]
                 ? `<span class="mr-1">${q.correct}.</span> ${q.options[q.correct]}`
@@ -1817,9 +1827,9 @@
 
             const nextButton = document.getElementById('timeoutNextButton');
             if (currentQuestionIdx === currentExam.questions.length - 1) {
-                nextButton.innerHTML = 'Finish Test <i class="fa-solid fa-check"></i>';
+                nextButton.innerHTML = 'Done & Finish Test <i class="fa-solid fa-check"></i>';
             } else {
-                nextButton.innerHTML = 'Next Question <i class="fa-solid fa-arrow-right"></i>';
+                nextButton.innerHTML = isAnswerReview ? 'Done — Next Question <i class="fa-solid fa-arrow-right"></i>' : 'Next Question <i class="fa-solid fa-arrow-right"></i>';
             }
 
             modal.classList.remove('hidden');
@@ -1837,6 +1847,7 @@
             currentQuestionIdx++;
             renderQuestion();
             renderQuestionPalette();
+            startTimer(); // Resume the exam clock for the next question only after Done.
         }
 
         function updateTimerDisplay() {
@@ -1881,11 +1892,19 @@
         }
 
         function selectOption(qId, optionKey) {
-            if (examStatuses[qId] === 'timedout') return;
+            if (!currentExam || examStatuses[qId] === 'timedout' || examResponses[qId]) return;
+            const q = currentExam.questions.find(item => item.id === qId);
+            if (!q) return;
+
+            // Lock the answer immediately and pause both clocks while feedback is visible.
             examResponses[qId] = optionKey;
             examStatuses[qId] = 'answered';
+            questionFeedbackMode = 'answer';
+            clearInterval(questionTimerInterval);
+            clearInterval(timerInterval);
             renderQuestion();
             renderQuestionPalette();
+            showQuestionTimeoutSolution(q); // Reuse the existing solution modal to preserve the rest of the UI.
         }
 
         function clearCurrentResponse() {
